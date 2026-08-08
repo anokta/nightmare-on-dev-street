@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://cb6njbi3esh8w"]
+
+[ext_resource type="Script" uid="uid://hrlp2g530pfq" path="res://main.gd" id="1_0xm2m"]
+[ext_resource type="Shader" uid="uid://bphaoeftuf0m8" path="res://glitch.gdshader" id="1_ig7tw"]
+[ext_resource type="Texture2D" uid="uid://k61dhjcwhyqp" path="res://icon.svg" id="2_h2yge"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7dm0k"]
+shader = ExtResource("1_ig7tw")
+shader_parameter/is_active = true
+shader_parameter/glitch_speed = 8.00000038
+shader_parameter/glitch_intensity = 0.0050000002375
+shader_parameter/block_count = 20.0000009025
+shader_parameter/color_split = 0.05000000074506
+
+[node name="Main" type="Node2D" unique_id=1319513797]
+script = ExtResource("1_0xm2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=704426285]
+position = Vector2(300, 300)
+scale = Vector2(5, 5)
+texture = ExtResource("2_h2yge")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1813634902]
+
+[node name="Glitcher" type="ColorRect" parent="CanvasLayer" unique_id=1302727236]
+material = SubResource("ShaderMaterial_7dm0k")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
