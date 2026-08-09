@@ -1,0 +1,66 @@
+[gd_scene format=3 uid="uid://cb6njbi3esh8w"]
+
+[ext_resource type="Script" uid="uid://hrlp2g530pfq" path="res://scripts/main.gd" id="1_tefeu"]
+[ext_resource type="Script" uid="uid://xqryollpcy0m" path="res://scripts/level_builder.gd" id="2_o6xl0"]
+[ext_resource type="PackedScene" uid="uid://or2jcywl6a7q" path="res://scenes/wall.tscn" id="3_tipki"]
+[ext_resource type="Texture2D" uid="uid://3noweyie5sq6" path="res://art/ball.png" id="4_85g3d"]
+[ext_resource type="Texture2D" uid="uid://7neq1gekt0kb" path="res://art/circle_gradient.png" id="5_choun"]
+[ext_resource type="Script" uid="uid://bpqyw7iphdep3" path="res://scripts/player.gd" id="5_o6xl0"]
+[ext_resource type="Shader" uid="uid://bphaoeftuf0m8" path="res://shaders/glitch.gdshader" id="6_ya4ey"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_u1syl"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7dm0k"]
+shader = ExtResource("6_ya4ey")
+shader_parameter/is_active = true
+shader_parameter/glitch_speed = 4.00000019
+shader_parameter/glitch_intensity = 0.0010000000475
+shader_parameter/block_count = 20.0000009025
+shader_parameter/color_split = 0.002000000095
+
+[node name="Main" type="Node2D" unique_id=1319513797]
+script = ExtResource("1_tefeu")
+
+[node name="Level" type="Node2D" parent="." unique_id=1674618282]
+position = Vector2(80, 140)
+script = ExtResource("2_o6xl0")
+tile_size = 45
+wall_scene = ExtResource("3_tipki")
+
+[node name="Player" type="CharacterBody2D" parent="Level" unique_id=847650439 node_paths=PackedStringArray("light", "sprite")]
+position = Vector2(45, 45)
+motion_mode = 1
+safe_margin = 0.5
+script = ExtResource("5_o6xl0")
+speed = 200.0
+light = NodePath("Sprite/PointLight2D")
+sprite = NodePath("Sprite")
+
+[node name="Sprite" type="Sprite2D" parent="Level/Player" unique_id=704426285]
+scale = Vector2(0.005, 0.005)
+texture = ExtResource("4_85g3d")
+
+[node name="PointLight2D" type="PointLight2D" parent="Level/Player/Sprite" unique_id=150097821]
+scale = Vector2(100, 100)
+energy = 10.0
+blend_mode = 2
+texture = ExtResource("5_choun")
+
+[node name="CircleShape" type="CollisionShape2D" parent="Level/Player" unique_id=387475574]
+scale = Vector2(1.5, 1.5)
+shape = SubResource("CircleShape2D_u1syl")
+
+[node name="Background" type="CanvasModulate" parent="." unique_id=714309114]
+position = Vector2(6.1035156e-05, 6.1035156e-05)
+scale = Vector2(0.9999999, 0.9999999)
+color = Color(0, 0, 0, 1)
+
+[node name="PostFx" type="CanvasLayer" parent="." unique_id=1813634902]
+
+[node name="Glitcher" type="ColorRect" parent="PostFx" unique_id=1302727236]
+material = SubResource("ShaderMaterial_7dm0k")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
