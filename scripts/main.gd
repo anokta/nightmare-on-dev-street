@@ -16,7 +16,7 @@ func _input(event):
       return
 
 
-func _process(delta):
+func _process(_delta):
   player_light.visible = enable_light
   background.visible = enable_background
   postfx.visible = enable_postfx

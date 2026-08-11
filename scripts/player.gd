@@ -21,6 +21,7 @@ var _light_target_energy: float = 0.0
 
 var _beat: int = 0
 
+
 func _ready() -> void:
   var task = performer.tasks[0]
   task.connect("task_begin", Callable(self, "_on_task_begin"))
@@ -34,7 +35,7 @@ func _physics_process(delta: float) -> void:
 
   if direction != Vector2.ZERO:
     velocity = direction * speed
-  else: # snap to grid
+  else:  # snap to grid
     var closest_grid_position = position.snapped(Vector2.ONE * tile_size)
     position = position.move_toward(closest_grid_position, speed * delta)
     velocity = Vector2.ZERO
