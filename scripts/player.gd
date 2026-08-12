@@ -37,7 +37,7 @@ func _physics_process(delta: float) -> void:
     velocity = direction * speed
   else:  # snap to grid
     var closest_grid_position = position.snapped(Vector2.ONE * tile_size)
-    position = position.move_toward(closest_grid_position, speed * delta)
+    position = position.move_toward(closest_grid_position, snap_speed * delta)
     velocity = Vector2.ZERO
 
   var unit_velocity = velocity / speed
@@ -49,7 +49,7 @@ func _physics_process(delta: float) -> void:
     var rotation_amount = rotation_speed * delta_position.length() * roll_direction
     sprite.rotate(rotation_amount)
 
-  #_light_target_energy = max(light_intensity * unit_velocity.length(), _light_target_energy)
+  _light_target_energy = max(light_intensity * unit_velocity.length(), _light_target_energy)
   light.energy = lerpf(light.energy, _light_target_energy, light_energy_speed * delta)
 
   move_and_slide()

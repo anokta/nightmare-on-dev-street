@@ -53,8 +53,15 @@ light = NodePath("Sprite/PointLight2D")
 sprite = NodePath("Sprite")
 instrument = NodePath("BarelyInstrument")
 performer = NodePath("BarelyPerformer")
-speed = 200.0
+speed = 175.0
+snap_speed = 180.0
+beat_count = 2
 light_energy_speed = 15.0
+
+[node name="Camera2D" type="Camera2D" parent="Level/Player" unique_id=1518682335]
+zoom = Vector2(2, 2)
+position_smoothing_enabled = true
+position_smoothing_speed = 10.0
 
 [node name="Sprite" type="Sprite2D" parent="Level/Player" unique_id=704426285]
 scale = Vector2(0.005, 0.005)
@@ -89,5 +96,7 @@ material = SubResource("ShaderMaterial_7dm0k")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 6.0
+offset_right = 6.0
 grow_horizontal = 2
 grow_vertical = 2
