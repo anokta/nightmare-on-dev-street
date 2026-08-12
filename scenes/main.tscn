@@ -29,9 +29,6 @@ script = ExtResource("1_tefeu")
 player_light = NodePath("Level/Player/Sprite/PointLight2D")
 background = NodePath("Level/Background")
 postfx = NodePath("Level/PostFx")
-enable_light = false
-enable_background = false
-enable_postfx = false
 
 [node name="Level" type="Node2D" parent="." unique_id=1674618282]
 position = Vector2(80, 140)
@@ -44,19 +41,23 @@ position = Vector2(-79.99994, -139.99994)
 scale = Vector2(0.9999999, 0.9999999)
 color = Color(0, 0, 0, 1)
 
-[node name="Player" type="CharacterBody2D" parent="Level" unique_id=847650439 node_paths=PackedStringArray("light", "sprite", "instrument", "performer")]
+[node name="Player" type="CharacterBody2D" parent="Level" unique_id=847650439 node_paths=PackedStringArray("light", "sprite", "hummer", "instrument", "performer")]
 position = Vector2(45, 45)
 motion_mode = 1
 safe_margin = 0.5
 script = ExtResource("5_o6xl0")
 light = NodePath("Sprite/PointLight2D")
 sprite = NodePath("Sprite")
+hummer = NodePath("Hummer")
 instrument = NodePath("BarelyInstrument")
 performer = NodePath("BarelyPerformer")
 speed = 175.0
 snap_speed = 180.0
 beat_count = 2
 light_energy_speed = 15.0
+hum_lfo_freq = 0.03
+hum_lfo_range = 0.04
+hum_gain_speed = 5.0
 
 [node name="Camera2D" type="Camera2D" parent="Level/Player" unique_id=1518682335]
 zoom = Vector2(2, 2)
@@ -76,6 +77,24 @@ texture = ExtResource("5_choun")
 [node name="CircleShape" type="CollisionShape2D" parent="Level/Player" unique_id=387475574]
 scale = Vector2(1.5, 1.5)
 shape = SubResource("CircleShape2D_u1syl")
+
+[node name="Hummer" type="BarelyInstrument" parent="Level/Player" unique_id=2012683215]
+attack = 0.5
+release = 0.5
+osc_noise_mix = 0.15
+osc_pitch_shift = -0.5
+osc_shape = 0.1
+crush_depth = 0.1
+crush_rate = 0.15
+distortion_mix = 0.1
+distortion_drive = 0.1
+filter_cutoff = 0.6
+filter_resonance = 0.35
+filter_tone = 1.0
+delay_send = 0.05
+reverb_send = 0.5
+retrigger = true
+voice_count = 1
 
 [node name="BarelyInstrument" type="BarelyInstrument" parent="Level/Player" unique_id=1092345987]
 attack = 0.0
