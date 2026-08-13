@@ -7,14 +7,17 @@
 [ext_resource type="Texture2D" uid="uid://7neq1gekt0kb" path="res://art/circle_gradient.png" id="5_choun"]
 [ext_resource type="Script" uid="uid://bpqyw7iphdep3" path="res://scripts/player.gd" id="5_o6xl0"]
 [ext_resource type="Shader" uid="uid://bphaoeftuf0m8" path="res://shaders/glitch.gdshader" id="6_ya4ey"]
-[ext_resource type="AudioStream" uid="uid://b77ymswijvykk" path="res://addons/barelymusician/demo/data/basic_hihat_closed.wav" id="7_tipki"]
+[ext_resource type="AudioStream" uid="uid://ckwfallmnbmj1" path="res://addons/barelymusician/demo/data/basic_kick.wav" id="7_85g3d"]
+[ext_resource type="Script" uid="uid://dqf5f62ri5ops" path="res://scripts/boss.gd" id="8_choun"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_u1syl"]
 
 [sub_resource type="BarelySliceResource" id="BarelySliceResource_u1syl"]
-stream = ExtResource("7_tipki")
+stream = ExtResource("7_85g3d")
 
-[sub_resource type="BarelyTaskResource" id="BarelyTaskResource_tipki"]
+[sub_resource type="BarelyTaskResource" id="BarelyTaskResource_choun"]
+
+[sub_resource type="BarelyTaskResource" id="BarelyTaskResource_85g3d"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7dm0k"]
 shader = ExtResource("6_ya4ey")
@@ -70,6 +73,7 @@ texture = ExtResource("4_85g3d")
 
 [node name="PointLight2D" type="PointLight2D" parent="Level/Player/Sprite" unique_id=150097821]
 scale = Vector2(100, 100)
+color = Color(0, 1, 1, 1)
 energy = 10.0
 blend_mode = 2
 texture = ExtResource("5_choun")
@@ -106,7 +110,49 @@ voice_count = 4
 
 [node name="BarelyPerformer" type="BarelyPerformer" parent="Level/Player" unique_id=894431562]
 looping = true
-tasks = Array[BarelyTaskResource]([SubResource("BarelyTaskResource_tipki")])
+tasks = Array[BarelyTaskResource]([SubResource("BarelyTaskResource_choun")])
+
+[node name="Boss" type="CharacterBody2D" parent="Level" unique_id=356705792 node_paths=PackedStringArray("player", "light", "sprite", "instrument", "performer")]
+position = Vector2(130, 45)
+scale = Vector2(1.5, 1.5)
+script = ExtResource("8_choun")
+player = NodePath("../Player")
+light = NodePath("Sprite/PointLight2D")
+sprite = NodePath("Sprite")
+instrument = NodePath("Kick")
+performer = NodePath("BarelyPerformer")
+
+[node name="Sprite" type="Sprite2D" parent="Level/Boss" unique_id=2071714521]
+self_modulate = Color(1, 0, 0, 1)
+scale = Vector2(0.005, 0.005)
+texture = ExtResource("4_85g3d")
+
+[node name="PointLight2D" type="PointLight2D" parent="Level/Boss/Sprite" unique_id=1038671918]
+scale = Vector2(100, 100)
+color = Color(1, 0, 0, 1)
+energy = 16.0
+texture = ExtResource("5_choun")
+texture_scale = 3.0
+
+[node name="CircleShape" type="CollisionShape2D" parent="Level/Boss" unique_id=1776527084]
+scale = Vector2(1.5, 1.5)
+shape = SubResource("CircleShape2D_u1syl")
+
+[node name="Kick" type="BarelyInstrument" parent="Level/Boss" unique_id=146648710]
+attack = 0.0
+slice_mode = 2
+slices = Array[BarelySliceResource]([SubResource("BarelySliceResource_u1syl")])
+osc_mix = 0.25
+osc_noise_mix = 1.0
+distortion_drive = 1.0
+filter_resonance = 0.52
+delay_send = 0.1
+reverb_send = 0.5
+voice_count = 4
+
+[node name="BarelyPerformer" type="BarelyPerformer" parent="Level/Boss" unique_id=733130273]
+looping = true
+tasks = Array[BarelyTaskResource]([SubResource("BarelyTaskResource_85g3d")])
 
 [node name="PostFx" type="CanvasLayer" parent="Level" unique_id=1813634902]
 
