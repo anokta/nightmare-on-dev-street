@@ -1,5 +1,7 @@
 extends CharacterBody2D
 
+@export var main: Node2D
+
 @export var light: Light2D
 @export var sprite: Sprite2D
 
@@ -8,7 +10,6 @@ extends CharacterBody2D
 @export var instrument: BarelyInstrument
 @export var performer: BarelyPerformer
 
-@export var tile_size: int = 45
 @export var speed: float = 250.0
 @export var snap_speed: float = 10.0
 
@@ -48,13 +49,13 @@ func _physics_process(delta: float) -> void:
   if direction != Vector2.ZERO:
     velocity = direction * speed
   else:  # snap to grid
-    var closest_grid_position = position.snapped(Vector2.ONE * tile_size)
+    var closest_grid_position = position.snapped(Vector2.ONE * main.tile_size)
     position = position.move_toward(closest_grid_position, snap_speed * delta)
     velocity = Vector2.ZERO
 
   var unit_velocity = velocity / speed
   if unit_velocity != Vector2.ZERO:
-    var delta_position = unit_velocity / tile_size
+    var delta_position = unit_velocity / main.tile_size
     var roll_direction = 1.0
     if delta_position.x < 0 or (delta_position.x == 0 and delta_position.y > 0):
       roll_direction = -1.0

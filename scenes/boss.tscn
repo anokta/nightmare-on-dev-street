@@ -1,0 +1,54 @@
+[gd_scene format=3 uid="uid://c6l38nomq803y"]
+
+[ext_resource type="Script" uid="uid://dqf5f62ri5ops" path="res://scripts/boss.gd" id="1_qnbj4"]
+[ext_resource type="Texture2D" uid="uid://b1ua376w6exja" path="res://art/spike.png" id="2_qnbj4"]
+[ext_resource type="Texture2D" uid="uid://7neq1gekt0kb" path="res://art/circle_gradient.png" id="3_wqpjq"]
+[ext_resource type="AudioStream" uid="uid://ckwfallmnbmj1" path="res://addons/barelymusician/demo/data/basic_kick.wav" id="4_2cdgk"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_u1syl"]
+
+[sub_resource type="BarelySliceResource" id="BarelySliceResource_u1syl"]
+stream = ExtResource("4_2cdgk")
+
+[sub_resource type="BarelyTaskResource" id="BarelyTaskResource_85g3d"]
+
+[node name="Boss" type="CharacterBody2D" unique_id=94247393 node_paths=PackedStringArray("light", "sprite", "instrument", "performer")]
+scale = Vector2(3, 3)
+script = ExtResource("1_qnbj4")
+light = NodePath("Sprite/PointLight2D")
+sprite = NodePath("Sprite")
+instrument = NodePath("Kick")
+performer = NodePath("BarelyPerformer")
+light_intensity = 7.5
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=601329245]
+self_modulate = Color(1, 0, 0, 1)
+scale = Vector2(0.005, 0.005)
+texture = ExtResource("2_qnbj4")
+
+[node name="PointLight2D" type="PointLight2D" parent="Sprite" unique_id=1392857865]
+scale = Vector2(100, 100)
+color = Color(1, 0, 0, 1)
+energy = 10.0
+texture = ExtResource("3_wqpjq")
+texture_scale = 1.75
+
+[node name="CircleShape" type="CollisionShape2D" parent="." unique_id=572822170]
+scale = Vector2(1.25, 1.25)
+shape = SubResource("CircleShape2D_u1syl")
+
+[node name="Kick" type="BarelyInstrument" parent="." unique_id=2051386149]
+attack = 0.0
+slice_mode = 2
+slices = Array[BarelySliceResource]([SubResource("BarelySliceResource_u1syl")])
+osc_mix = 0.25
+osc_noise_mix = 1.0
+distortion_drive = 1.0
+filter_resonance = 0.52
+delay_send = 0.1
+reverb_send = 0.5
+voice_count = 4
+
+[node name="BarelyPerformer" type="BarelyPerformer" parent="." unique_id=1886823423]
+looping = true
+tasks = Array[BarelyTaskResource]([SubResource("BarelyTaskResource_85g3d")])

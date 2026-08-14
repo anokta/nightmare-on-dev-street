@@ -1,5 +1,6 @@
 extends CharacterBody2D
 
+@export var main: Node2D
 @export var player: CharacterBody2D
 
 @export var light: Light2D
@@ -8,12 +9,10 @@ extends CharacterBody2D
 @export var instrument: BarelyInstrument
 @export var performer: BarelyPerformer
 
-@export var tile_size: float = 45.0
-
 @export var light_energy_speed: float = 20.0
 @export var light_intensity: float = 10.0
 
-@export var rotation_speed: float = 3.0
+@export var rotation_speed: float = 20.0
 
 @export_group("Player Distance")
 @export var min_player_distance: float = 2.0
@@ -41,8 +40,8 @@ func _physics_process(delta):
   var from_player = position - player.position
   var player_dist = from_player.length()
 
-  var min_dist = min_player_distance * tile_size
-  var max_dist = max_player_distance * tile_size
+  var min_dist = min_player_distance * main.tile_size
+  var max_dist = max_player_distance * main.tile_size
 
   instrument.stereo_pan = (
     sign(from_player.x) * clampf((abs(from_player.x) - min_dist) / (max_dist - min_dist), 0.0, 1.0)
@@ -55,7 +54,7 @@ func _physics_process(delta):
   instrument.crush_depth = pow(0.9 * (max(0.25, proximity) - 0.25), 1.0)
   instrument.osc_mix = pow(max(0.75, proximity) - 0.75, 2.0)
 
-  print(instrument.distortion_mix)
+  sprite.rotate(rotation_speed * (2.0 * randf() - 1.0) * delta)
 
   move_and_slide()
 

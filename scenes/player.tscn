@@ -1,0 +1,80 @@
+[gd_scene format=3 uid="uid://gkqo47goimpb"]
+
+[ext_resource type="Script" uid="uid://bpqyw7iphdep3" path="res://scripts/player.gd" id="1_dqkch"]
+[ext_resource type="Texture2D" uid="uid://3noweyie5sq6" path="res://art/ball.png" id="2_qlg0r"]
+[ext_resource type="Texture2D" uid="uid://7neq1gekt0kb" path="res://art/circle_gradient.png" id="3_tuyoq"]
+[ext_resource type="AudioStream" uid="uid://ckwfallmnbmj1" path="res://addons/barelymusician/demo/data/basic_kick.wav" id="4_fjrip"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_u1syl"]
+
+[sub_resource type="BarelySliceResource" id="BarelySliceResource_u1syl"]
+stream = ExtResource("4_fjrip")
+
+[sub_resource type="BarelyTaskResource" id="BarelyTaskResource_choun"]
+
+[node name="Player" type="CharacterBody2D" unique_id=1403024315 node_paths=PackedStringArray("light", "sprite", "hummer", "instrument", "performer")]
+motion_mode = 1
+safe_margin = 0.5
+script = ExtResource("1_dqkch")
+light = NodePath("Sprite/PointLight2D")
+sprite = NodePath("Sprite")
+hummer = NodePath("Hummer")
+instrument = NodePath("BarelyInstrument")
+performer = NodePath("BarelyPerformer")
+speed = 175.0
+snap_speed = 180.0
+beat_count = 2
+light_energy_speed = 15.0
+hum_lfo_freq = 0.03
+hum_lfo_range = 0.04
+hum_gain_speed = 5.0
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=323744265]
+zoom = Vector2(2, 2)
+position_smoothing_enabled = true
+position_smoothing_speed = 10.0
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=1846917493]
+scale = Vector2(0.005, 0.005)
+texture = ExtResource("2_qlg0r")
+
+[node name="PointLight2D" type="PointLight2D" parent="Sprite" unique_id=1685934147]
+scale = Vector2(100, 100)
+color = Color(0, 1, 1, 1)
+energy = 10.0
+blend_mode = 2
+texture = ExtResource("3_tuyoq")
+
+[node name="CircleShape" type="CollisionShape2D" parent="." unique_id=590925614]
+scale = Vector2(1.5, 1.5)
+shape = SubResource("CircleShape2D_u1syl")
+
+[node name="Hummer" type="BarelyInstrument" parent="." unique_id=313304825]
+attack = 0.5
+release = 0.5
+osc_noise_mix = 0.15
+osc_pitch_shift = -0.5
+osc_shape = 0.1
+crush_depth = 0.1
+crush_rate = 0.15
+distortion_mix = 0.1
+distortion_drive = 0.1
+filter_cutoff = 0.6
+filter_resonance = 0.35
+filter_tone = 1.0
+delay_send = 0.05
+reverb_send = 0.5
+retrigger = true
+voice_count = 1
+
+[node name="BarelyInstrument" type="BarelyInstrument" parent="." unique_id=92399416]
+attack = 0.0
+slice_mode = 2
+slices = Array[BarelySliceResource]([SubResource("BarelySliceResource_u1syl")])
+osc_mix = 0.0
+retrigger = true
+voice_count = 4
+
+[node name="BarelyPerformer" type="BarelyPerformer" parent="." unique_id=1435440365]
+looping = true
+tasks = Array[BarelyTaskResource]([SubResource("BarelyTaskResource_choun")])
