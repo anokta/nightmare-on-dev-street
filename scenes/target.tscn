@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://cu8v038hk3w4"]
+
+[ext_resource type="Script" uid="uid://b6784hits4r4n" path="res://scripts/target.gd" id="1_kuto0"]
+[ext_resource type="Texture2D" uid="uid://3noweyie5sq6" path="res://art/ball.png" id="2_2x57b"]
+[ext_resource type="Texture2D" uid="uid://cwu8hlbjpryyq" path="res://art/ball_45.png" id="3_kuto0"]
+[ext_resource type="AudioStream" uid="uid://b77ymswijvykk" path="res://addons/barelymusician/demo/data/basic_hihat_closed.wav" id="4_kuto0"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_u1syl"]
+
+[sub_resource type="BarelySliceResource" id="BarelySliceResource_u1syl"]
+stream = ExtResource("4_kuto0")
+
+[sub_resource type="BarelyTaskResource" id="BarelyTaskResource_choun"]
+
+[node name="Target" type="CharacterBody2D" unique_id=1403024315 node_paths=PackedStringArray("light", "sprite", "instrument", "performer")]
+motion_mode = 1
+safe_margin = 0.5
+script = ExtResource("1_kuto0")
+light = NodePath("Sprite/PointLight2D")
+sprite = NodePath("Sprite")
+instrument = NodePath("BarelyInstrument")
+performer = NodePath("BarelyPerformer")
+beat_count = 3
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=323744265]
+zoom = Vector2(2, 2)
+position_smoothing_enabled = true
+position_smoothing_speed = 10.0
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=1846917493]
+scale = Vector2(0.005, 0.005)
+texture = ExtResource("2_2x57b")
+
+[node name="PointLight2D" type="PointLight2D" parent="Sprite" unique_id=1685934147]
+scale = Vector2(100, 20)
+energy = 10.0
+texture = ExtResource("3_kuto0")
+offset = Vector2(225, 0)
+texture_scale = 10.0
+
+[node name="CircleShape" type="CollisionShape2D" parent="." unique_id=590925614]
+scale = Vector2(1.5, 1.5)
+shape = SubResource("CircleShape2D_u1syl")
+
+[node name="BarelyInstrument" type="BarelyInstrument" parent="." unique_id=92399416]
+attack = 0.0
+release = 0.0
+slice_mode = 2
+slices = Array[BarelySliceResource]([SubResource("BarelySliceResource_u1syl")])
+osc_mix = 0.0
+filter_cutoff = 0.9
+filter_resonance = 1.0
+filter_tone = 1.0
+delay_send = 0.75
+reverb_send = 0.5
+retrigger = true
+voice_count = 4
+
+[node name="BarelyPerformer" type="BarelyPerformer" parent="." unique_id=1435440365]
+looping = true
+tasks = Array[BarelyTaskResource]([SubResource("BarelyTaskResource_choun")])

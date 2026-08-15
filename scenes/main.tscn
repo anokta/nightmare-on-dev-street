@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://hrlp2g530pfq" path="res://scripts/main.gd" id="1_tefeu"]
 [ext_resource type="PackedScene" uid="uid://gkqo47goimpb" path="res://scenes/player.tscn" id="2_tbgi4"]
+[ext_resource type="PackedScene" uid="uid://cu8v038hk3w4" path="res://scenes/target.tscn" id="3_o6xl0"]
 [ext_resource type="PackedScene" uid="uid://c6l38nomq803y" path="res://scenes/boss.tscn" id="3_tefeu"]
 [ext_resource type="PackedScene" uid="uid://or2jcywl6a7q" path="res://scenes/wall.tscn" id="3_tipki"]
 [ext_resource type="Shader" uid="uid://bphaoeftuf0m8" path="res://shaders/glitch.gdshader" id="6_ya4ey"]
@@ -19,8 +20,10 @@ script = ExtResource("1_tefeu")
 background = NodePath("Background")
 postfx = NodePath("PostFx")
 player_scene = ExtResource("2_tbgi4")
+target_scene = ExtResource("3_o6xl0")
 boss_scene = ExtResource("3_tefeu")
 wall_scene = ExtResource("3_tipki")
+enable_boss = false
 
 [node name="Background" type="CanvasModulate" parent="." unique_id=714309114]
 position = Vector2(6.1035156e-05, 6.1035156e-05)

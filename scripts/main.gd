@@ -4,18 +4,23 @@ extends Node2D
 @export var postfx: CanvasLayer
 
 @export var player_scene: PackedScene
+@export var target_scene: PackedScene
 @export var boss_scene: PackedScene
 @export var wall_scene: PackedScene
 
 @export var tile_size: int = 45
 
+@export var level_path: String = "level.txt"
+
 @export var enable_background: bool = true
 @export var enable_postfx: bool = true
 @export var enable_light: bool = true
 
-@export var level_path: String = "level.txt"
+@export var enable_boss: bool = true
+@export var enable_target: bool = true
 
 var _player: CharacterBody2D
+var _target: CharacterBody2D
 var _boss: CharacterBody2D
 
 
@@ -28,8 +33,12 @@ func _ready() -> void:
   BarelyEngine.reverb_damping = 0.2
   BarelyEngine.reverb_room_size = 0.4
 
+  BarelyEngine.lookahead = 0.15
+  BarelyEngine.tempo = 140
+
   _load_level("res://" + level_path)
   _boss.player = _player
+  _target.player = _player
 
 
 func _input(event):
@@ -43,6 +52,8 @@ func _process(_delta):
   _player.light.visible = enable_light
   background.visible = enable_background
   postfx.visible = enable_postfx
+  _boss.visible = enable_boss
+  _target.visible = enable_target
 
 
 func _load_level(path: String) -> void:
@@ -64,6 +75,9 @@ func _load_level(path: String) -> void:
       elif ch == "P":
         _player = _spawn(player_scene, x, y)
         _player.main = self
+      elif ch == "T":
+        _target = _spawn(target_scene, x, y)
+        _target.main = self
       elif ch == "B":
         _boss = _spawn(boss_scene, x, y)
         _boss.main = self
