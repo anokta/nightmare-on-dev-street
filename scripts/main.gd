@@ -10,7 +10,9 @@ extends Node2D
 
 @export var tile_size: int = 45
 
-@export var level_path: String = "level.txt"
+@export var level_path: String = "level"
+
+@export var initial_tempo: float = 100.0
 
 @export var enable_background: bool = true
 @export var enable_postfx: bool = true
@@ -23,6 +25,48 @@ var _player: CharacterBody2D
 var _target: CharacterBody2D
 var _boss: CharacterBody2D
 
+var _tiles: Array = []
+var _width: int = 0
+var _height: int = 0
+
+
+func is_wall(tile) -> bool:
+  return (
+    tile.x < 0
+    or tile.x >= _width
+    or tile.y < 0
+    or tile.y >= _height
+    or _tiles[_width * tile.y + tile.x]
+  )
+
+
+func world_to_tile(pos: Vector2) -> Vector2i:
+  return Vector2i(floor(pos.x / tile_size), floor(pos.y / tile_size))
+
+
+func tile_to_world(tile: Vector2i) -> Vector2:
+  return Vector2((tile.x + 0.5) * tile_size, (tile.y + 0.5) * tile_size)
+
+
+func get_neighbors(tile: Vector2i) -> Array[Vector2i]:
+  var result: Array[Vector2i] = []
+  var directions: Array = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
+  for direction in directions:
+    var neighbor = tile + direction
+    if not is_wall(neighbor):
+      result.append(neighbor)
+  return result
+
+
+func get_random_tile() -> Vector2i:
+  var candidates: Array[Vector2i] = []
+  for y in _height:
+    for x in _width:
+      var tile: Vector2i = Vector2i(x, y)
+      if not is_wall(tile):
+        candidates.append(tile)
+  return candidates.pick_random()
+
 
 func _ready() -> void:
   BarelyEngine.delay_ping_pong = 1.0
@@ -34,11 +78,12 @@ func _ready() -> void:
   BarelyEngine.reverb_room_size = 0.4
 
   BarelyEngine.lookahead = 0.15
-  BarelyEngine.tempo = 140
+  BarelyEngine.tempo = initial_tempo
 
-  _load_level("res://" + level_path)
+  _load_level("res://" + level_path + ".txt")
   _boss.player = _player
   _target.player = _player
+  _target.boss = _player
 
 
 func _input(event):
@@ -50,6 +95,9 @@ func _input(event):
 
 func _process(_delta):
   _player.light.visible = enable_light
+  _boss.light.visible = enable_light
+  _target.light.visible = enable_light
+
   background.visible = enable_background
   postfx.visible = enable_postfx
   _boss.visible = enable_boss
@@ -68,10 +116,19 @@ func _load_level(path: String) -> void:
       y += 1
       continue
 
+    if _width > 0 and _width != line.length():
+      printerr("Level width must match: ", _width, " vs ", line.length())
+    _width = line.length()
+
+    _height = y + 1
+    _tiles.resize(_width * _height)
+
     for x in range(line.length()):
+      _tiles[y * line.length() + x] = false
       var ch = line[x]
       if ch == "#":
         _spawn(wall_scene, x, y)
+        _tiles[y * line.length() + x] = true
       elif ch == "P":
         _player = _spawn(player_scene, x, y)
         _player.main = self
@@ -87,6 +144,6 @@ func _load_level(path: String) -> void:
 
 func _spawn(prefab_scene: PackedScene, x: int, y: int) -> Node2D:
   var prefab = prefab_scene.instantiate() as Node2D
-  prefab.position = Vector2(x * tile_size, y * tile_size)
+  prefab.position = tile_to_world(Vector2i(x, y))
   add_child(prefab)
   return prefab

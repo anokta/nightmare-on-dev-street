@@ -20,12 +20,6 @@ light = NodePath("Sprite/PointLight2D")
 sprite = NodePath("Sprite")
 instrument = NodePath("BarelyInstrument")
 performer = NodePath("BarelyPerformer")
-beat_count = 3
-
-[node name="Camera2D" type="Camera2D" parent="." unique_id=323744265]
-zoom = Vector2(2, 2)
-position_smoothing_enabled = true
-position_smoothing_speed = 10.0
 
 [node name="Sprite" type="Sprite2D" parent="." unique_id=1846917493]
 scale = Vector2(0.005, 0.005)

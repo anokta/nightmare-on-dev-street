@@ -30,7 +30,6 @@ hum_lfo_range = 0.04
 hum_gain_speed = 5.0
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=323744265]
-zoom = Vector2(2, 2)
 position_smoothing_enabled = true
 position_smoothing_speed = 10.0
 

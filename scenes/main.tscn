@@ -23,6 +23,10 @@ player_scene = ExtResource("2_tbgi4")
 target_scene = ExtResource("3_o6xl0")
 boss_scene = ExtResource("3_tefeu")
 wall_scene = ExtResource("3_tipki")
+level_path = "level0"
+enable_background = false
+enable_postfx = false
+enable_light = false
 enable_boss = false
 
 [node name="Background" type="CanvasModulate" parent="." unique_id=714309114]

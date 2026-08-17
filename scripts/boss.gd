@@ -29,7 +29,7 @@ func _ready() -> void:
   task.connect("task_begin", Callable(self, "_on_task_begin"))
   task.connect("task_end", Callable(self, "_on_task_end"))
 
-  performer.start()
+  # performer.start()
 
 
 func _physics_process(delta):
