@@ -1,8 +1,12 @@
 extends Node2D
 
+enum GState { RUNNING, LEVEL_CHANGE }
+
 @export var background: CanvasModulate
 @export var postfx: CanvasLayer
 @export var shader: ColorRect
+
+@export var level_root: Node2D
 
 @export var player_scene: PackedScene
 @export var target_scene: PackedScene
@@ -25,6 +29,8 @@ extends Node2D
 
 @export var glitch_interp_speed = 1.0
 
+@export var level_change_time = 4.0
+
 var _initial_color_split = 0.0
 var _initial_glitch_intensity = 0.0
 var _shader: ShaderMaterial
@@ -36,6 +42,18 @@ var _boss: CharacterBody2D
 var _tiles: Array = []
 var _width: int = 0
 var _height: int = 0
+
+var _state: GState = GState.RUNNING
+var _level_change_timer = 0.0
+
+
+func change_level():
+  _boss.performer.stop()
+  _target.performer.stop()
+  level_root.process_mode = Node.PROCESS_MODE_DISABLED
+
+  _state = GState.LEVEL_CHANGE
+  _level_change_timer = level_change_time
 
 
 func set_glitch_intensity(intensity):
@@ -106,9 +124,6 @@ func _ready() -> void:
   _initial_color_split = _shader.get_shader_parameter("color_split")
 
   _load_level("res://" + level_path + ".txt")
-  _boss.player = _player
-  _target.player = _player
-  _target.boss = _boss
 
 
 func _input(event):
@@ -123,7 +138,7 @@ func _process(delta):
   _boss.light.visible = enable_light
   _target.light.visible = enable_light
 
-  background.visible = enable_background
+  background.visible = enable_background and _state == GState.RUNNING
   postfx.visible = enable_postfx
   _boss.visible = enable_boss
   _target.visible = enable_target
@@ -142,6 +157,14 @@ func _process(delta):
       delta * glitch_interp_speed
     )
   )
+
+  if _state == GState.LEVEL_CHANGE:
+    if _level_change_timer > 0.0:
+      _level_change_timer -= delta
+    else:
+      for child in level_root.get_children():
+        child.queue_free()
+      _load_level("res://" + level_path + ".txt")
 
 
 func _load_level(path: String) -> void:
@@ -187,9 +210,15 @@ func _load_level(path: String) -> void:
 
     y += 1
 
+  _boss.player = _player
+  _target.player = _player
+  _target.boss = _boss
+  level_root.process_mode = PROCESS_MODE_INHERIT
+  _state = GState.RUNNING
+
 
 func _spawn(prefab_scene: PackedScene, x: int, y: int) -> Node2D:
   var prefab = prefab_scene.instantiate() as Node2D
   prefab.position = tile_to_world(Vector2i(x, y))
-  add_child(prefab)
+  level_root.add_child(prefab)
   return prefab

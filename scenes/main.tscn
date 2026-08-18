@@ -15,11 +15,12 @@ shader_parameter/glitch_intensity = 0.0010000000475
 shader_parameter/block_count = 20.0000009025
 shader_parameter/color_split = 0.0070000003325
 
-[node name="Main" type="Node2D" unique_id=1319513797 node_paths=PackedStringArray("background", "postfx", "shader")]
+[node name="Main" type="Node2D" unique_id=1319513797 node_paths=PackedStringArray("background", "postfx", "shader", "level_root")]
 script = ExtResource("1_tefeu")
 background = NodePath("Background")
 postfx = NodePath("PostFx")
 shader = NodePath("PostFx/Glitcher")
+level_root = NodePath("Level")
 player_scene = ExtResource("2_tbgi4")
 target_scene = ExtResource("3_o6xl0")
 boss_scene = ExtResource("3_tefeu")
@@ -30,6 +31,8 @@ tile_size = 48
 position = Vector2(6.1035156e-05, 6.1035156e-05)
 scale = Vector2(0.9999999, 0.9999999)
 color = Color(0.007843138, 0.007843138, 0.007843138, 1)
+
+[node name="Level" type="Node2D" parent="." unique_id=1806540029]
 
 [node name="PostFx" type="CanvasLayer" parent="." unique_id=1813634902]
 

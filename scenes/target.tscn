@@ -12,6 +12,8 @@ stream = ExtResource("4_kuto0")
 
 [sub_resource type="BarelyTaskResource" id="BarelyTaskResource_choun"]
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_vr3e8"]
+
 [node name="Target" type="CharacterBody2D" unique_id=1403024315 node_paths=PackedStringArray("light", "sprite", "instrument", "performer")]
 motion_mode = 1
 safe_margin = 0.5
@@ -62,3 +64,11 @@ voice_count = 16
 [node name="BarelyPerformer" type="BarelyPerformer" parent="." unique_id=1435440365]
 looping = true
 tasks = Array[BarelyTaskResource]([SubResource("BarelyTaskResource_choun")])
+
+[node name="Area2D" type="Area2D" parent="." unique_id=1337852309]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=1261200435]
+scale = Vector2(1.75, 1.75)
+shape = SubResource("CircleShape2D_vr3e8")
+
+[connection signal="body_shape_entered" from="Area2D" to="." method="_on_area_2d_body_shape_entered"]

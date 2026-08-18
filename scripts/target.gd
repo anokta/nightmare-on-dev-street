@@ -43,6 +43,11 @@ func _ready() -> void:
   performer.start()
 
 
+func _on_area_2d_body_shape_entered(_body_rid, body, _body_shape_index, _local_shape_index):
+  if body.name == "Player":
+    main.change_level.call_deferred()
+
+
 func _physics_process(delta):
   light.energy = lerpf(light.energy, _light_target_energy, light_energy_speed * delta)
 
