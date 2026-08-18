@@ -11,28 +11,25 @@
 shader = ExtResource("6_ya4ey")
 shader_parameter/is_active = true
 shader_parameter/glitch_speed = 4.00000019
-shader_parameter/glitch_intensity = 0.00400000019
+shader_parameter/glitch_intensity = 0.0010000000475
 shader_parameter/block_count = 20.0000009025
-shader_parameter/color_split = 0.002000000095
+shader_parameter/color_split = 0.0070000003325
 
-[node name="Main" type="Node2D" unique_id=1319513797 node_paths=PackedStringArray("background", "postfx")]
+[node name="Main" type="Node2D" unique_id=1319513797 node_paths=PackedStringArray("background", "postfx", "shader")]
 script = ExtResource("1_tefeu")
 background = NodePath("Background")
 postfx = NodePath("PostFx")
+shader = NodePath("PostFx/Glitcher")
 player_scene = ExtResource("2_tbgi4")
 target_scene = ExtResource("3_o6xl0")
 boss_scene = ExtResource("3_tefeu")
 wall_scene = ExtResource("3_tipki")
-level_path = "level0"
-enable_background = false
-enable_postfx = false
-enable_light = false
-enable_boss = false
+tile_size = 48
 
 [node name="Background" type="CanvasModulate" parent="." unique_id=714309114]
 position = Vector2(6.1035156e-05, 6.1035156e-05)
 scale = Vector2(0.9999999, 0.9999999)
-color = Color(0, 0, 0, 1)
+color = Color(0.007843138, 0.007843138, 0.007843138, 1)
 
 [node name="PostFx" type="CanvasLayer" parent="." unique_id=1813634902]
 

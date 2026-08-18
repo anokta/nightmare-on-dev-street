@@ -1,17 +1,35 @@
 [gd_scene format=3 uid="uid://or2jcywl6a7q"]
 
+[ext_resource type="Script" uid="uid://dypbbqj4bk8nj" path="res://scripts/wall.gd" id="1_wykyb"]
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_uvhfp"]
 size = Vector2(760, 760.7407)
 
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_uvhfp"]
-size = Vector2(1024, 1024)
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_uvhfp"]
+noise_type = 3
+frequency = 0.0231
+fractal_type = 0
+fractal_octaves = 10
+fractal_lacunarity = 0.015
+fractal_gain = 0.145
+fractal_weighted_strength = 1.0
 
-[node name="Wall" type="StaticBody2D" unique_id=1667493768]
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_kuto0"]
+width = 1024
+height = 1024
+generate_mipmaps = false
+noise = SubResource("FastNoiseLite_uvhfp")
+seamless = true
+
+[node name="Wall" type="StaticBody2D" unique_id=1667493768 node_paths=PackedStringArray("sprite", "collision_shape")]
 scale = Vector2(0.04, 0.04)
+script = ExtResource("1_wykyb")
+sprite = NodePath("Sprite2D")
+collision_shape = NodePath("CollisionShape2D")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=350717260]
 scale = Vector2(1.35, 1.35)
 shape = SubResource("RectangleShape2D_uvhfp")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1572636026]
-texture = SubResource("PlaceholderTexture2D_uvhfp")
+texture = SubResource("NoiseTexture2D_kuto0")

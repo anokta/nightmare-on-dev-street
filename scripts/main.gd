@@ -2,6 +2,7 @@ extends Node2D
 
 @export var background: CanvasModulate
 @export var postfx: CanvasLayer
+@export var shader: ColorRect
 
 @export var player_scene: PackedScene
 @export var target_scene: PackedScene
@@ -9,6 +10,7 @@ extends Node2D
 @export var wall_scene: PackedScene
 
 @export var tile_size: int = 45
+@export var empty_alpha = 0.03
 
 @export var level_path: String = "level"
 
@@ -21,6 +23,12 @@ extends Node2D
 @export var enable_boss: bool = true
 @export var enable_target: bool = true
 
+@export var glitch_interp_speed = 1.0
+
+var _initial_color_split = 0.0
+var _initial_glitch_intensity = 0.0
+var _shader: ShaderMaterial
+
 var _player: CharacterBody2D
 var _target: CharacterBody2D
 var _boss: CharacterBody2D
@@ -28,6 +36,14 @@ var _boss: CharacterBody2D
 var _tiles: Array = []
 var _width: int = 0
 var _height: int = 0
+
+
+func set_glitch_intensity(intensity):
+  _shader.set_shader_parameter("glitch_intensity", intensity)
+
+
+func set_glitch_color_split(color_split):
+  _shader.set_shader_parameter("color_split", color_split)
 
 
 func is_wall(tile) -> bool:
@@ -45,7 +61,7 @@ func world_to_tile(pos: Vector2) -> Vector2i:
 
 
 func tile_to_world(tile: Vector2i) -> Vector2:
-  return Vector2((tile.x + 0.5) * tile_size, (tile.y + 0.5) * tile_size)
+  return Vector2(tile.x * tile_size, tile.y * tile_size)
 
 
 func get_neighbors(tile: Vector2i) -> Array[Vector2i]:
@@ -76,14 +92,23 @@ func _ready() -> void:
   BarelyEngine.delay_reverb_send = 0.5
   BarelyEngine.reverb_damping = 0.2
   BarelyEngine.reverb_room_size = 0.4
+  BarelyEngine.sidechain_mix = 1.0
+  BarelyEngine.sidechain_attack = 0.0
+  BarelyEngine.sidechain_release = 0.1
+  BarelyEngine.sidechain_ratio = 0.5
+  BarelyEngine.sidechain_threshold = 0.2
 
   BarelyEngine.lookahead = 0.15
   BarelyEngine.tempo = initial_tempo
 
+  _shader = shader.material
+  _initial_glitch_intensity = _shader.get_shader_parameter("glitch_intensity")
+  _initial_color_split = _shader.get_shader_parameter("color_split")
+
   _load_level("res://" + level_path + ".txt")
   _boss.player = _player
   _target.player = _player
-  _target.boss = _player
+  _target.boss = _boss
 
 
 func _input(event):
@@ -93,7 +118,7 @@ func _input(event):
       return
 
 
-func _process(_delta):
+func _process(delta):
   _player.light.visible = enable_light
   _boss.light.visible = enable_light
   _target.light.visible = enable_light
@@ -102,6 +127,21 @@ func _process(_delta):
   postfx.visible = enable_postfx
   _boss.visible = enable_boss
   _target.visible = enable_target
+
+  _shader.set_shader_parameter(
+    "color_split",
+    lerp(
+      _shader.get_shader_parameter("color_split"), _initial_color_split, delta * glitch_interp_speed
+    )
+  )
+  _shader.set_shader_parameter(
+    "glitch_intensity",
+    lerp(
+      _shader.get_shader_parameter("glitch_intensity"),
+      _initial_glitch_intensity,
+      delta * glitch_interp_speed
+    )
+  )
 
 
 func _load_level(path: String) -> void:
@@ -124,20 +164,26 @@ func _load_level(path: String) -> void:
     _tiles.resize(_width * _height)
 
     for x in range(line.length()):
-      _tiles[y * line.length() + x] = false
       var ch = line[x]
       if ch == "#":
         _spawn(wall_scene, x, y)
         _tiles[y * line.length() + x] = true
-      elif ch == "P":
-        _player = _spawn(player_scene, x, y)
-        _player.main = self
-      elif ch == "T":
-        _target = _spawn(target_scene, x, y)
-        _target.main = self
-      elif ch == "B":
-        _boss = _spawn(boss_scene, x, y)
-        _boss.main = self
+      else:
+        _tiles[y * line.length() + x] = false
+
+        var empty = _spawn(wall_scene, x, y)
+        empty.modulate.a = empty_alpha
+        empty.collision_shape.disabled = true
+
+        if ch == "P":
+          _player = _spawn(player_scene, x, y)
+          _player.main = self
+        elif ch == "T":
+          _target = _spawn(target_scene, x, y)
+          _target.main = self
+        elif ch == "B":
+          _boss = _spawn(boss_scene, x, y)
+          _boss.main = self
 
     y += 1
 
