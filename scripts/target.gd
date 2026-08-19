@@ -1,8 +1,6 @@
 extends CharacterBody2D
 
 @export var main: Node2D
-@export var player: CharacterBody2D
-@export var boss: CharacterBody2D
 
 @export var light: Light2D
 @export var sprite: Sprite2D
@@ -17,7 +15,7 @@ extends CharacterBody2D
 @export var speed: float = 40.0
 
 @export_group("Boss Distance")
-@export var min_boss_distance: float = 2.0
+@export var min_boss_distance: float = 5.0
 @export var max_boss_distance: float = 20.0
 
 @export_group("Player Distance")
@@ -52,7 +50,7 @@ func _on_area_2d_body_shape_entered(_body_rid, body, _body_shape_index, _local_s
 func _physics_process(delta):
   light.energy = lerpf(light.energy, _light_target_energy, light_energy_speed * delta)
 
-  var from_player = position - player.position
+  var from_player = position - main.player.position
   var player_dist = from_player.length()
 
   var min_dist = min_player_distance * main.tile_size
@@ -61,7 +59,7 @@ func _physics_process(delta):
   light.scale.x = max(player_dist, 2.0 * main.tile_size)
   light.scale.y = 20.0 + max(max_player_distance - player_dist, 0.0)
 
-  look_at(player.position)
+  look_at(main.player.position)
 
   _player_proximity = clampf((max_dist - player_dist) / (max_dist - min_dist), 0.0, 1.0)
 
@@ -73,7 +71,7 @@ func _physics_process(delta):
     sign(from_player.x) * clampf((abs(from_player.x) - min_dist) / (max_dist - min_dist), 0.0, 1.0)
   )
 
-  var from_boss = position - boss.position
+  var from_boss = (position - main.boss.position) if main.boss != null else Vector2.INF
   var boss_dist = from_boss.length()
 
   var min_boss_dist = min_boss_distance * main.tile_size
@@ -121,7 +119,10 @@ func _on_task_begin():
   choose_travel_direction()
 
   scale = (1 + prox / 16.0) * scale_mult * _initial_scale
-  performer.loop_length = loop_length * max(1.0 - _boss_proximity, 0.02)
+  performer.loop_length = loop_length * max(1.0 - _boss_proximity, 0.05)
+
+  if main.boss != null:
+    main.boss.ping()
 
 
 func _on_task_end():

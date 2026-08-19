@@ -1,7 +1,6 @@
 extends CharacterBody2D
 
 @export var main: Node2D
-@export var player: CharacterBody2D
 
 @export var light: Light2D
 @export var sprite: Sprite2D
@@ -25,7 +24,9 @@ extends CharacterBody2D
 @export var min_beat_repeat: int = 1
 @export var max_beat_repeat: int = 4
 
-@export var boss_movement_radius: float = 5
+@export var boss_movement_radius: float = 4
+@export var boss_movement_angle: float = 30
+@export var boss_target_lerp_speed: float = 1.0
 
 var _light_target_energy: float = 0.0
 
@@ -35,21 +36,29 @@ var _repeat_beats = min_beat_repeat
 
 var _proximity = 0.0
 
+var _target_pos = Vector2.ZERO
+
+
+func ping():
+  _target_pos = main.player.position
+
 
 func _ready() -> void:
   var task = performer.tasks[0]
   task.connect("task_begin", Callable(self, "_on_task_begin"))
   task.connect("task_end", Callable(self, "_on_task_end"))
 
+  if main.target != null:
+    _target_pos = main.target.position
+
   performer.start()
 
 
 func _physics_process(delta):
   velocity = Vector2.ZERO
-
   light.energy = lerpf(light.energy, _light_target_energy, light_energy_speed * delta)
 
-  var from_player = position - player.position
+  var from_player = position - main.player.position
   var player_dist = from_player.length()
 
   var min_dist = min_player_distance * main.tile_size
@@ -68,6 +77,9 @@ func _physics_process(delta):
 
   sprite.rotate(rotation_speed * (2.0 * randf() - 1.0) * delta)
 
+  if main.target != null:
+    _target_pos = (lerp(_target_pos, main.target.position, boss_target_lerp_speed * delta))
+
   move_and_slide()
 
 
@@ -85,6 +97,13 @@ func _pick_next_tile() -> Vector2:
 
       if main.is_wall(tile):
         continue
+
+      if (
+        abs((main.tile_to_world(tile) - position).angle_to(_target_pos - position))
+        > deg_to_rad(boss_movement_angle)
+      ):
+        continue
+
       candidates.append(tile)
   if candidates.is_empty():
     return global_position

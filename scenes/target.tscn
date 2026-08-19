@@ -34,7 +34,7 @@ scale = Vector2(100, 20)
 color = Color(0.19607843, 1, 0, 1)
 energy = 10.0
 texture = ExtResource("3_kuto0")
-offset = Vector2(195, 0)
+offset = Vector2(245, 0)
 texture_scale = 10.0
 
 [node name="CircleShape" type="CollisionShape2D" parent="." unique_id=590925614]

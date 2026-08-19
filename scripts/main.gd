@@ -29,15 +29,15 @@ enum GState { RUNNING, LEVEL_CHANGE }
 
 @export var glitch_interp_speed = 1.0
 
-@export var level_change_time = 4.0
+@export var level_change_time = 3.0
+
+var player: CharacterBody2D
+var target: CharacterBody2D
+var boss: CharacterBody2D
 
 var _initial_color_split = 0.0
 var _initial_glitch_intensity = 0.0
 var _shader: ShaderMaterial
-
-var _player: CharacterBody2D
-var _target: CharacterBody2D
-var _boss: CharacterBody2D
 
 var _tiles: Array = []
 var _width: int = 0
@@ -48,8 +48,8 @@ var _level_change_timer = 0.0
 
 
 func change_level():
-  _boss.performer.stop()
-  _target.performer.stop()
+  boss.performer.stop()
+  target.performer.stop()
   level_root.process_mode = Node.PROCESS_MODE_DISABLED
 
   _state = GState.LEVEL_CHANGE
@@ -134,14 +134,14 @@ func _input(event):
 
 
 func _process(delta):
-  _player.light.visible = enable_light
-  _boss.light.visible = enable_light
-  _target.light.visible = enable_light
+  player.light.visible = enable_light
+  boss.light.visible = enable_light
+  target.light.visible = enable_light
 
   background.visible = enable_background and _state == GState.RUNNING
   postfx.visible = enable_postfx
-  _boss.visible = enable_boss
-  _target.visible = enable_target
+  boss.visible = enable_boss
+  target.visible = enable_target
 
   _shader.set_shader_parameter(
     "color_split",
@@ -199,20 +199,14 @@ func _load_level(path: String) -> void:
         empty.collision_shape.disabled = true
 
         if ch == "P":
-          _player = _spawn(player_scene, x, y)
-          _player.main = self
+          player = _spawn(player_scene, x, y)
         elif ch == "T":
-          _target = _spawn(target_scene, x, y)
-          _target.main = self
+          target = _spawn(target_scene, x, y)
         elif ch == "B":
-          _boss = _spawn(boss_scene, x, y)
-          _boss.main = self
+          boss = _spawn(boss_scene, x, y)
 
     y += 1
 
-  _boss.player = _player
-  _target.player = _player
-  _target.boss = _boss
   level_root.process_mode = PROCESS_MODE_INHERIT
   _state = GState.RUNNING
 
@@ -220,5 +214,7 @@ func _load_level(path: String) -> void:
 func _spawn(prefab_scene: PackedScene, x: int, y: int) -> Node2D:
   var prefab = prefab_scene.instantiate() as Node2D
   prefab.position = tile_to_world(Vector2i(x, y))
+  if prefab is CharacterBody2D:
+    prefab.main = self
   level_root.add_child(prefab)
   return prefab
