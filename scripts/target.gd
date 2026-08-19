@@ -42,9 +42,8 @@ func _ready() -> void:
   performer.start()
 
 
-func _on_area_2d_body_shape_entered(_body_rid, body, _body_shape_index, _local_shape_index):
-  if body.name == "Player":
-    main.change_level.call_deferred()
+func _on_area_2d_body_shape_entered(_body_rid, _body, _body_shape_index, _local_shape_index):
+  main.change_level.call_deferred()
 
 
 func _physics_process(delta):
@@ -71,11 +70,11 @@ func _physics_process(delta):
     sign(from_player.x) * clampf((abs(from_player.x) - min_dist) / (max_dist - min_dist), 0.0, 1.0)
   )
 
-  var from_boss = (position - main.boss.position) if main.boss != null else Vector2.INF
-  var boss_dist = from_boss.length()
-
   var min_boss_dist = min_boss_distance * main.tile_size
   var max_boss_dist = max_boss_distance * main.tile_size
+
+  var from_boss = (position - main.boss.position) if main.boss != null else Vector2.ZERO
+  var boss_dist = from_boss.length() if main.boss != null else max_boss_dist
 
   _boss_proximity = clampf((max_boss_dist - boss_dist) / (max_boss_dist - min_boss_dist), 0.0, 1.0)
   current_direction = lerp(from_boss.normalized(), current_direction, _boss_proximity * delta)

@@ -16,8 +16,6 @@ enum GState { RUNNING, LEVEL_CHANGE }
 @export var tile_size: int = 45
 @export var empty_alpha = 0.03
 
-@export var level_path: String = "level"
-
 @export var initial_tempo: float = 100.0
 
 @export var enable_background: bool = true
@@ -31,9 +29,13 @@ enum GState { RUNNING, LEVEL_CHANGE }
 
 @export var level_change_time = 3.0
 
+@export var levels: Array[String] = []
+
 var player: CharacterBody2D
 var target: CharacterBody2D
 var boss: CharacterBody2D
+
+var _level_index = 0
 
 var _initial_color_split = 0.0
 var _initial_glitch_intensity = 0.0
@@ -48,12 +50,15 @@ var _level_change_timer = 0.0
 
 
 func change_level():
-  boss.performer.stop()
+  if boss != null:
+    boss.performer.stop()
   target.performer.stop()
   level_root.process_mode = Node.PROCESS_MODE_DISABLED
 
   _state = GState.LEVEL_CHANGE
   _level_change_timer = level_change_time
+
+  _level_index = (_level_index + 1) % levels.size()
 
 
 func set_glitch_intensity(intensity):
@@ -123,7 +128,7 @@ func _ready() -> void:
   _initial_glitch_intensity = _shader.get_shader_parameter("glitch_intensity")
   _initial_color_split = _shader.get_shader_parameter("color_split")
 
-  _load_level("res://" + level_path + ".txt")
+  _load_level("res://" + levels[_level_index] + ".txt")
 
 
 func _input(event):
@@ -135,13 +140,15 @@ func _input(event):
 
 func _process(delta):
   player.light.visible = enable_light
-  boss.light.visible = enable_light
   target.light.visible = enable_light
 
   background.visible = enable_background and _state == GState.RUNNING
   postfx.visible = enable_postfx
-  boss.visible = enable_boss
   target.visible = enable_target
+
+  if boss != null:
+    boss.light.visible = enable_light
+    boss.visible = enable_boss
 
   _shader.set_shader_parameter(
     "color_split",
@@ -164,13 +171,16 @@ func _process(delta):
     else:
       for child in level_root.get_children():
         child.queue_free()
-      _load_level("res://" + level_path + ".txt")
+      _load_level("res://" + levels[_level_index] + ".txt")
 
 
 func _load_level(path: String) -> void:
   var file = FileAccess.open(path, FileAccess.READ)
   if not file:
     return
+
+  _width = 0
+  _height = 0
 
   var y = 0
   while not file.eof_reached():
