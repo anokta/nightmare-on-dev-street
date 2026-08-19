@@ -22,7 +22,7 @@ light = NodePath("Sprite/PointLight2D")
 sprite = NodePath("Sprite")
 instrument = NodePath("BarelyInstrument")
 performer = NodePath("BarelyPerformer")
-light_intensity = 2.0
+light_intensity = 3.0
 
 [node name="Sprite" type="Sprite2D" parent="." unique_id=1846917493]
 modulate = Color(0.81960785, 1, 0, 1)
@@ -31,10 +31,10 @@ texture = ExtResource("2_2x57b")
 
 [node name="PointLight2D" type="PointLight2D" parent="Sprite" unique_id=1685934147]
 scale = Vector2(100, 20)
-color = Color(0.29411766, 1, 0, 1)
+color = Color(0.19607843, 1, 0, 1)
 energy = 10.0
 texture = ExtResource("3_kuto0")
-offset = Vector2(200, 0)
+offset = Vector2(195, 0)
 texture_scale = 10.0
 
 [node name="CircleShape" type="CollisionShape2D" parent="." unique_id=590925614]
@@ -47,7 +47,6 @@ attack = 0.0
 decay = 1.0
 sustain = 0.8
 release = 0.0
-slice_mode = 2
 slices = Array[BarelySliceResource]([SubResource("BarelySliceResource_u1syl")])
 osc_mix = 0.1
 osc_mode = 1

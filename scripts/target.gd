@@ -29,6 +29,7 @@ extends CharacterBody2D
 var current_direction: Vector2 = Vector2.ZERO
 var _light_target_energy: float = 0.0
 
+var _boss_proximity = 0.0
 var _player_proximity = 0.0
 var _initial_scale = Vector2()
 
@@ -58,6 +59,7 @@ func _physics_process(delta):
   var max_dist = max_player_distance * main.tile_size
 
   light.scale.x = max(player_dist, 2.0 * main.tile_size)
+  light.scale.y = 20.0 + max(max_player_distance - player_dist, 0.0)
 
   look_at(player.position)
 
@@ -77,12 +79,11 @@ func _physics_process(delta):
   var min_boss_dist = min_boss_distance * main.tile_size
   var max_boss_dist = max_boss_distance * main.tile_size
 
-  var proximity = clampf((max_boss_dist - boss_dist) / (max_boss_dist - min_boss_dist), 0.0, 1.0)
-  performer.loop_length = loop_length * max(1.0 - proximity, 0.02)
-  current_direction = lerp(from_boss.normalized(), current_direction, proximity * delta)
+  _boss_proximity = clampf((max_boss_dist - boss_dist) / (max_boss_dist - min_boss_dist), 0.0, 1.0)
+  current_direction = lerp(from_boss.normalized(), current_direction, _boss_proximity * delta)
 
   velocity = velocity.move_toward(
-    current_direction * speed, (1.0 + 100 * proximity) * speed * delta
+    current_direction * speed, (1.0 + 100 * _boss_proximity) * speed * delta
   )
   position = lerp(position, position.snapped(Vector2.ONE * main.tile_size), delta)
 
@@ -120,6 +121,7 @@ func _on_task_begin():
   choose_travel_direction()
 
   scale = (1 + prox / 16.0) * scale_mult * _initial_scale
+  performer.loop_length = loop_length * max(1.0 - _boss_proximity, 0.02)
 
 
 func _on_task_end():
