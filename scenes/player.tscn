@@ -22,7 +22,6 @@ light_energy_speed = 15.0
 light_intensity = 8.0
 hum_lfo_freq = 0.03
 hum_lfo_range = 0.04
-hum_max_gain = 0.4
 hum_gain_speed = 5.0
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=323744265]
@@ -37,7 +36,7 @@ texture = ExtResource("2_qlg0r")
 [node name="PointLight2D" type="PointLight2D" parent="Sprite" unique_id=1685934147]
 scale = Vector2(100, 100)
 color = Color(0, 0.88235295, 1, 1)
-energy = 10.0
+energy = 0.0
 texture = ExtResource("3_tuyoq")
 
 [node name="CircleShape" type="CollisionShape2D" parent="." unique_id=590925614]

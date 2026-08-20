@@ -28,13 +28,13 @@ extends CharacterBody2D
 @export var boss_movement_angle: float = 30
 @export var boss_target_lerp_speed: float = 1.0
 
+var player_proximity = 0.0
+
 var _light_target_energy: float = 0.0
 
 var _wait_beats = min_wait_beats
 var _beat_interval = min_beat_interval
 var _repeat_beats = min_beat_repeat
-
-var _proximity = 0.0
 
 var _target_pos = Vector2.ZERO
 
@@ -51,7 +51,19 @@ func _ready() -> void:
   if main.target != null:
     _target_pos = main.target.position
 
+  performer.position = -4.0
   performer.start()
+
+
+func _input(event):
+  if !main.is_game_over():
+    return
+
+  if event is InputEventKey and event.pressed and not event.echo:
+    if event.keycode == KEY_SPACE:
+      instrument.set_note_on(0.0)
+      # light.energy = light_intensity
+      main.change_level(1.0, true)
 
 
 func _physics_process(delta):
@@ -68,16 +80,18 @@ func _physics_process(delta):
     sign(from_player.x) * clampf((abs(from_player.x) - min_dist) / (max_dist - min_dist), 0.0, 1.0)
   )
 
-  _proximity = clampf((max_dist - player_dist) / (max_dist - min_dist), 0.0, 1.0)
-  instrument.filter_cutoff = pow(_proximity, 2.0)
-  instrument.distortion_mix = pow(max(0.5, _proximity) - 0.5, 2.0)
-  instrument.crush_rate = pow(0.5 * _proximity, 1.5)
-  instrument.crush_depth = pow(0.9 * (max(0.25, _proximity) - 0.25), 1.0)
-  instrument.osc_mix = pow(max(0.75, _proximity) - 0.75, 2.0)
+  player_proximity = clampf((max_dist - player_dist) / (max_dist - min_dist), 0.0, 1.0)
+  instrument.filter_cutoff = pow(player_proximity, 2.0)
+  instrument.distortion_mix = pow(max(0.5, player_proximity) - 0.5, 2.0)
+  instrument.crush_rate = pow(0.5 * player_proximity, 1.5)
+  instrument.crush_depth = pow(0.9 * (max(0.25, player_proximity) - 0.25), 1.0)
+  instrument.osc_mix = pow(max(0.75, player_proximity) - 0.75, 2.0)
 
   sprite.rotate(rotation_speed * (2.0 * randf() - 1.0) * delta)
 
-  if main.target != null:
+  if main.is_game_over():
+    _target_pos = main.player.position
+  elif main.target != null:
     _target_pos = (lerp(_target_pos, main.target.position, boss_target_lerp_speed * delta))
 
   move_and_slide()
@@ -120,21 +134,27 @@ func _on_task_begin():
   if _beat_interval > 0:
     _beat_interval -= 1
 
-  if _repeat_beats == 0:
+  if _repeat_beats == 0 and (!main.is_game_over() or main.dead_anim.visible):
     _wait_beats = randi_range(min_wait_beats, max_wait_beats)
     _repeat_beats = randi_range(min_beat_repeat, max_beat_repeat)
     return
 
-  _repeat_beats -= 1
+  _repeat_beats = max(_repeat_beats - 1, 0)
   _beat_interval = randi_range(min_beat_interval, max_beat_interval)
 
   position = _pick_next_tile()
 
-  main.set_glitch_intensity(pow(_proximity, 4) * 0.005)
-  main.set_glitch_color_split(pow(_proximity, 4) * 0.05)
+  main.set_glitch_intensity(pow(player_proximity, 4) * (0.0075 if main.is_game_over() else 0.005))
+  main.set_glitch_color_split(pow(player_proximity, 4) * (0.075 if main.is_game_over() else 0.05))
 
   instrument.set_note_on(0.0)
   light.energy = light_intensity
+
+  if main.is_game_over():
+    # if !main.dead_anim.visible or randf() < 0.1:
+    main.dead_anim.visible = !main.dead_anim.visible
+  elif player_proximity >= 1.0:
+    main.game_over()
 
 
 func _on_task_end():

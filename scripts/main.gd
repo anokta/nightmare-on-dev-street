@@ -1,10 +1,11 @@
 extends Node2D
 
-enum GState { RUNNING, LEVEL_CHANGE }
+enum GState { RUNNING, LEVEL_CHANGE, OVER }
 
 @export var background: CanvasModulate
 @export var postfx: CanvasLayer
 @export var shader: ColorRect
+@export var dead_anim: AnimatedSprite2D
 
 @export var level_root: Node2D
 
@@ -22,12 +23,7 @@ enum GState { RUNNING, LEVEL_CHANGE }
 @export var enable_postfx: bool = true
 @export var enable_light: bool = true
 
-@export var enable_boss: bool = true
-@export var enable_target: bool = true
-
 @export var glitch_interp_speed = 1.0
-
-@export var level_change_time = 3.0
 
 @export var levels: Array[String] = []
 
@@ -49,16 +45,36 @@ var _state: GState = GState.RUNNING
 var _level_change_timer = 0.0
 
 
-func change_level():
+func change_level(level_change_time = 3.0, restart = false):
   if boss != null:
     boss.performer.stop()
   target.performer.stop()
   level_root.process_mode = Node.PROCESS_MODE_DISABLED
 
+  dead_anim.visible = false
+
   _state = GState.LEVEL_CHANGE
   _level_change_timer = level_change_time
 
-  _level_index = (_level_index + 1) % levels.size()
+  if !restart:
+    _level_index = (_level_index + 1) % levels.size()
+
+
+func game_over():
+  _state = GState.OVER
+
+  boss.visible = false
+  target.visible = false
+
+  player.visible = false
+  player.hummer.set_note_off(0.0)
+
+  dead_anim.play_backwards()
+  dead_anim.visible = true
+
+
+func is_game_over():
+  return _state == GState.OVER
 
 
 func set_glitch_intensity(intensity):
@@ -128,7 +144,7 @@ func _ready() -> void:
   _initial_glitch_intensity = _shader.get_shader_parameter("glitch_intensity")
   _initial_color_split = _shader.get_shader_parameter("color_split")
 
-  _load_level("res://" + levels[_level_index] + ".txt")
+  _load_level(levels[_level_index])
 
 
 func _input(event):
@@ -142,13 +158,14 @@ func _process(delta):
   player.light.visible = enable_light
   target.light.visible = enable_light
 
-  background.visible = enable_background and _state == GState.RUNNING
+  background.visible = (
+    (enable_background and _state == GState.RUNNING)
+    or (!dead_anim.visible and _state == GState.OVER)
+  )
   postfx.visible = enable_postfx
-  target.visible = enable_target
 
   if boss != null:
     boss.light.visible = enable_light
-    boss.visible = enable_boss
 
   _shader.set_shader_parameter(
     "color_split",
@@ -171,11 +188,11 @@ func _process(delta):
     else:
       for child in level_root.get_children():
         child.queue_free()
-      _load_level("res://" + levels[_level_index] + ".txt")
+      _load_level(levels[_level_index])
 
 
 func _load_level(path: String) -> void:
-  var file = FileAccess.open(path, FileAccess.READ)
+  var file = FileAccess.open("res://levels/" + path + ".txt", FileAccess.READ)
   if not file:
     return
 

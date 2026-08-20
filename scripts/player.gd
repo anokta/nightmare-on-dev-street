@@ -36,12 +36,13 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
   var direction: Vector2 = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 
-  if direction != Vector2.ZERO:
-    velocity = direction * speed
-  else:  # snap to grid
-    var closest_grid_position = position.snapped(Vector2.ONE * main.tile_size)
-    position = position.move_toward(closest_grid_position, snap_speed * delta)
-    velocity = Vector2.ZERO
+  if !main.is_game_over():
+    if direction != Vector2.ZERO:
+      velocity = direction * speed
+    else:  # snap to grid
+      var closest_grid_position = position.snapped(Vector2.ONE * main.tile_size)
+      position = position.move_toward(closest_grid_position, snap_speed * delta)
+      velocity = Vector2.ZERO
 
   var unit_velocity = velocity / speed
   if unit_velocity != Vector2.ZERO:
@@ -53,10 +54,16 @@ func _physics_process(delta: float) -> void:
     sprite.rotate(rotation_amount)
 
   hummer.gain = lerpf(hummer.gain, min(hum_max_gain, velocity.length()), hum_gain_speed * delta)
-  hummer.pitch_shift = sin(_hum_lfo_phase * 2.0 * PI) * hum_lfo_range
+  hummer.pitch_shift = (
+    sin(_hum_lfo_phase * 2.0 * PI) * hum_lfo_range
+    + (0.1 * main.boss.player_proximity if main.boss != null else 0.0)
+  )
   _hum_lfo_phase += delta * hum_lfo_freq
 
-  _light_target_energy = light_intensity * min(unit_velocity.length(), 1.0)
+  _light_target_energy = (
+    light_intensity * min(unit_velocity.length(), 1.0) * (1.0 + hummer.pitch_shift)
+  )
   light.energy = lerpf(light.energy, _light_target_energy, light_energy_speed * delta)
 
-  move_and_slide()
+  if !main.is_game_over():
+    move_and_slide()

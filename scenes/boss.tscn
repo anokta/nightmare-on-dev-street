@@ -29,7 +29,7 @@ texture = ExtResource("2_qnbj4")
 [node name="PointLight2D" type="PointLight2D" parent="Sprite" unique_id=1392857865]
 scale = Vector2(100, 100)
 color = Color(1, 0, 0, 1)
-energy = 10.0
+energy = 0.0
 texture = ExtResource("3_wqpjq")
 texture_scale = 1.75
 

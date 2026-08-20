@@ -6,6 +6,49 @@
 [ext_resource type="PackedScene" uid="uid://c6l38nomq803y" path="res://scenes/boss.tscn" id="3_tefeu"]
 [ext_resource type="PackedScene" uid="uid://or2jcywl6a7q" path="res://scenes/wall.tscn" id="3_tipki"]
 [ext_resource type="Shader" uid="uid://bphaoeftuf0m8" path="res://shaders/glitch.gdshader" id="6_ya4ey"]
+[ext_resource type="Texture2D" uid="uid://b070gtvdivmdd" path="res://art/you-should-not-be-here/Paint Layer 1.PNG" id="7_ya4ey"]
+[ext_resource type="Texture2D" uid="uid://drud2i04px7cj" path="res://art/you-should-not-be-here/Paint Layer 2.PNG" id="8_eb6dy"]
+[ext_resource type="Texture2D" uid="uid://m4qpjvkmnrxk" path="res://art/you-should-not-be-here/Paint Layer 3.PNG" id="9_trceg"]
+[ext_resource type="Texture2D" uid="uid://djujiv2fd7d6x" path="res://art/you-should-not-be-here/Paint Layer 4.PNG" id="10_a8y0u"]
+[ext_resource type="Texture2D" uid="uid://ctfxgpklv4lhe" path="res://art/you-should-not-be-here/Paint Layer 5.PNG" id="11_jkv2x"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_u1syl"]
+animations = [{
+"frames": [{
+"duration": 5.0,
+"texture": ExtResource("7_ya4ey")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_eb6dy")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_trceg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_a8y0u")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_jkv2x")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_a8y0u")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_trceg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_ya4ey")
+}, {
+"duration": 2.0,
+"texture": ExtResource("9_trceg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_a8y0u")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 5.0
+}]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7dm0k"]
 shader = ExtResource("6_ya4ey")
@@ -15,11 +58,12 @@ shader_parameter/glitch_intensity = 0.0010000000475
 shader_parameter/block_count = 20.0000009025
 shader_parameter/color_split = 0.0070000003325
 
-[node name="Main" type="Node2D" unique_id=1319513797 node_paths=PackedStringArray("background", "postfx", "shader", "level_root")]
+[node name="Main" type="Node2D" unique_id=1319513797 node_paths=PackedStringArray("background", "postfx", "shader", "dead_anim", "level_root")]
 script = ExtResource("1_tefeu")
 background = NodePath("Background")
 postfx = NodePath("PostFx")
 shader = NodePath("PostFx/Glitcher")
+dead_anim = NodePath("PostFx/DeadAnim")
 level_root = NodePath("Level")
 player_scene = ExtResource("2_tbgi4")
 target_scene = ExtResource("3_o6xl0")
@@ -27,16 +71,22 @@ boss_scene = ExtResource("3_tefeu")
 wall_scene = ExtResource("3_tipki")
 tile_size = 48
 empty_alpha = 0.04
-levels = ["level2", "level0"]
+levels = Array[String](["level3", "level2", "level1"])
 
 [node name="Background" type="CanvasModulate" parent="." unique_id=714309114]
 position = Vector2(6.1035156e-05, 6.1035156e-05)
 scale = Vector2(0.9999999, 0.9999999)
-color = Color(0.007843138, 0.007843138, 0.007843138, 1)
+color = Color(0.015686275, 0.015686275, 0.015686275, 1)
 
 [node name="Level" type="Node2D" parent="." unique_id=1806540029]
 
 [node name="PostFx" type="CanvasLayer" parent="." unique_id=1813634902]
+
+[node name="DeadAnim" type="AnimatedSprite2D" parent="PostFx" unique_id=952194158]
+visible = false
+sprite_frames = SubResource("SpriteFrames_u1syl")
+frame_progress = 0.34271753
+centered = false
 
 [node name="Glitcher" type="ColorRect" parent="PostFx" unique_id=1302727236]
 material = SubResource("ShaderMaterial_7dm0k")

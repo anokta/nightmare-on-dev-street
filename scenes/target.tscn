@@ -22,7 +22,7 @@ light = NodePath("Sprite/PointLight2D")
 sprite = NodePath("Sprite")
 instrument = NodePath("BarelyInstrument")
 performer = NodePath("BarelyPerformer")
-light_intensity = 3.0
+light_intensity = 5.0
 
 [node name="Sprite" type="Sprite2D" parent="." unique_id=1846917493]
 modulate = Color(0.81960785, 1, 0, 1)
@@ -32,7 +32,7 @@ texture = ExtResource("2_2x57b")
 [node name="PointLight2D" type="PointLight2D" parent="Sprite" unique_id=1685934147]
 scale = Vector2(100, 20)
 color = Color(0.19607843, 1, 0, 1)
-energy = 10.0
+energy = 0.0
 texture = ExtResource("3_kuto0")
 offset = Vector2(245, 0)
 texture_scale = 10.0
@@ -42,7 +42,7 @@ scale = Vector2(1.5, 1.5)
 shape = SubResource("CircleShape2D_u1syl")
 
 [node name="BarelyInstrument" type="BarelyInstrument" parent="." unique_id=92399416]
-gain = 0.8
+gain = 0.9
 attack = 0.0
 decay = 1.0
 sustain = 0.8

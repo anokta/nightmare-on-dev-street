@@ -39,6 +39,7 @@ func _ready() -> void:
 
   _initial_scale = scale
 
+  performer.position = -4.0
   performer.start()
 
 
@@ -119,6 +120,9 @@ func _on_task_begin():
 
   scale = (1 + prox / 16.0) * scale_mult * _initial_scale
   performer.loop_length = loop_length * max(1.0 - _boss_proximity, 0.05)
+
+  instrument.crush_depth = randf_range(0.8, 0.95) if main.is_game_over() else 0.0
+  instrument.crush_rate = randf_range(0.0, 0.5) if main.is_game_over() else 0.0
 
   if main.boss != null:
     main.boss.ping()
