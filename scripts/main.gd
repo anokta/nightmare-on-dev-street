@@ -7,6 +7,8 @@ enum GState { RUNNING, LEVEL_CHANGE, OVER }
 @export var shader: ColorRect
 @export var dead_anim: AnimatedSprite2D
 
+@export var done_sfx: AudioStreamPlayer2D
+
 @export var level_root: Node2D
 
 @export var player_scene: PackedScene
@@ -31,6 +33,9 @@ var player: CharacterBody2D
 var target: CharacterBody2D
 var boss: CharacterBody2D
 
+var should_start_level = false
+var is_restart = false
+
 var _level_index = 0
 
 var _initial_color_split = 0.0
@@ -42,13 +47,10 @@ var _width: int = 0
 var _height: int = 0
 
 var _state: GState = GState.RUNNING
-var _level_change_timer = 0.0
-
-var _is_restart = false
 
 
-func change_level(level_change_time = 5.0, restart = false):
-  if boss != null:
+func change_level(restart = false):
+  if boss != null and !restart:
     boss.performer.stop()
   level_root.process_mode = Node.PROCESS_MODE_DISABLED
 
@@ -60,12 +62,12 @@ func change_level(level_change_time = 5.0, restart = false):
   player.hummer.set_note_off(0.0)
 
   _state = GState.LEVEL_CHANGE
-  _level_change_timer = level_change_time
+  should_start_level = false
 
   if !restart:
     _level_index = (_level_index + 1) % levels.size()
 
-  _is_restart = restart
+  is_restart = restart
 
 
 func game_over():
@@ -169,6 +171,9 @@ func _input(event):
 
 
 func _process(delta):
+  if player == null:
+    return
+
   player.light.visible = enable_light
   if target != null:
     target.light.visible = enable_light
@@ -176,7 +181,7 @@ func _process(delta):
   background.visible = (
     (enable_background and _state == GState.RUNNING)
     or (!dead_anim.visible and _state == GState.OVER)
-    or (_is_restart and _state == GState.LEVEL_CHANGE)
+    or ((is_restart or should_start_level) and _state == GState.LEVEL_CHANGE)
   )
   postfx.visible = enable_postfx
 
@@ -198,15 +203,14 @@ func _process(delta):
     )
   )
 
-  if _state == GState.LEVEL_CHANGE:
-    if _level_change_timer > 0.0:
-      _level_change_timer -= delta
-    else:
-      if target != null:
-        target.performer.stop()
-      for child in level_root.get_children():
-        child.queue_free()
-      _load_level(levels[_level_index])
+  if _state == GState.LEVEL_CHANGE and should_start_level:
+    if target != null:
+      target.performer.stop()
+    for child in level_root.get_children():
+      child.queue_free()
+    should_start_level = false
+    is_restart = false
+    _load_level(levels[_level_index])
 
 
 func _load_level(path: String) -> void:

@@ -22,6 +22,8 @@ extends CharacterBody2D
 @export var min_player_distance: float = 2.0
 @export var max_player_distance: float = 40.0
 
+@export var eaten_scale = 0.24
+
 @export var scale_mult = 1.2
 
 var current_direction: Vector2 = Vector2.ZERO
@@ -30,7 +32,6 @@ var _light_target_energy: float = 0.0
 var _boss_proximity = 0.0
 var _player_proximity = 0.0
 var _initial_scale = Vector2()
-
 
 func _ready() -> void:
   var task = performer.tasks[0]
@@ -63,7 +64,8 @@ func _physics_process(delta):
 
   _player_proximity = clampf((max_dist - player_dist) / (max_dist - min_dist), 0.0, 1.0)
 
-  scale = lerp(scale, _initial_scale, 4 * delta)
+  if main.is_running():
+    scale = lerp(scale, _initial_scale, 4 * delta)
 
   if !main.is_game_over():
     instrument.reverb_send = max(1.0 - pow(_player_proximity, 1.5), 0.25) + 0.5
@@ -134,10 +136,15 @@ func _on_task_begin():
     instrument.filter_cutoff = 0.5 if main.dead_anim.visible else 0.25
   elif !main.is_running():
     instrument.gain = randf_range(0.75, 0.9)
-    _boss_proximity = randf_range(0.7, 0.8)
+    _boss_proximity = randf_range(0.75, 0.82)
     instrument.stereo_pan = randf_range(-0.5, 0.5)
 
-  scale = (1 + prox / 16.0) * scale_mult * _initial_scale
+    var eat_scale_mult = randf_range(0.15, 0.3)
+    scale *= 1.0 - eat_scale_mult
+    main.player.scale *= 1.0 + eat_scale_mult
+  else:
+    scale = (1 + prox / 16.0) * scale_mult * _initial_scale
+
   performer.loop_length = loop_length * max(1.0 - _boss_proximity, 0.05)
 
   if main.boss != null:
@@ -145,6 +152,10 @@ func _on_task_begin():
 
 
 func _on_task_end():
+  if scale.length() < eaten_scale:
+    main.should_start_level = true
+    main.done_sfx.pitch_scale = instrument.pitch_shift + 1.0
+    main.done_sfx.play()
   for i in range(0, 3):
     instrument.set_note_off(i / 4.0)
   _light_target_energy = 0.0

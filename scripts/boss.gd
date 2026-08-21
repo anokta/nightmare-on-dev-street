@@ -26,7 +26,7 @@ extends CharacterBody2D
 
 @export var boss_movement_radius: float = 4
 @export var boss_movement_angle: float = 30
-@export var boss_target_lerp_speed: float = 1.0
+@export var boss_target_lerp_speed: float = 2.0
 
 var player_proximity = 0.0
 
@@ -63,7 +63,7 @@ func _input(event):
     if event.keycode == KEY_SPACE:
       instrument.set_note_on(0.0)
       # light.energy = light_intensity
-      main.change_level(1.0, true)
+      main.change_level(true)
       if main.target != null:
         main.target.performer.stop()
 
@@ -136,6 +136,10 @@ func _on_task_begin():
   if _beat_interval > 0:
     _beat_interval -= 1
 
+  if main.is_restart and !main.is_running() and !main.is_game_over():
+    main.should_start_level = true
+    return
+
   if _repeat_beats == 0 and (!main.is_game_over() or main.dead_anim.visible):
     _wait_beats = randi_range(min_wait_beats, max_wait_beats)
     _repeat_beats = randi_range(min_beat_repeat, max_beat_repeat)
@@ -162,3 +166,5 @@ func _on_task_begin():
 func _on_task_end():
   instrument.set_note_off(0.0)
   _light_target_energy = 0.0
+  if main.should_start_level:
+    performer.stop()
