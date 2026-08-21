@@ -44,14 +44,20 @@ var _height: int = 0
 var _state: GState = GState.RUNNING
 var _level_change_timer = 0.0
 
+var _is_restart = false
 
-func change_level(level_change_time = 3.0, restart = false):
+
+func change_level(level_change_time = 5.0, restart = false):
   if boss != null:
     boss.performer.stop()
-  target.performer.stop()
   level_root.process_mode = Node.PROCESS_MODE_DISABLED
 
   dead_anim.visible = false
+
+  if target != null:
+    target.performer.position = 0.0
+
+  player.hummer.set_note_off(0.0)
 
   _state = GState.LEVEL_CHANGE
   _level_change_timer = level_change_time
@@ -59,12 +65,15 @@ func change_level(level_change_time = 3.0, restart = false):
   if !restart:
     _level_index = (_level_index + 1) % levels.size()
 
+  _is_restart = restart
+
 
 func game_over():
   _state = GState.OVER
 
   boss.visible = false
-  target.visible = false
+  if target != null:
+    target.visible = false
 
   player.visible = false
   player.hummer.set_note_off(0.0)
@@ -75,6 +84,10 @@ func game_over():
 
 func is_game_over():
   return _state == GState.OVER
+
+
+func is_running():
+  return _state == GState.RUNNING
 
 
 func set_glitch_intensity(intensity):
@@ -131,6 +144,7 @@ func _ready() -> void:
   BarelyEngine.delay_reverb_send = 0.5
   BarelyEngine.reverb_damping = 0.2
   BarelyEngine.reverb_room_size = 0.4
+  BarelyEngine.reverb_stereo_width = 1.0
   BarelyEngine.sidechain_mix = 1.0
   BarelyEngine.sidechain_attack = 0.0
   BarelyEngine.sidechain_release = 0.1
@@ -156,11 +170,13 @@ func _input(event):
 
 func _process(delta):
   player.light.visible = enable_light
-  target.light.visible = enable_light
+  if target != null:
+    target.light.visible = enable_light
 
   background.visible = (
     (enable_background and _state == GState.RUNNING)
     or (!dead_anim.visible and _state == GState.OVER)
+    or (_is_restart and _state == GState.LEVEL_CHANGE)
   )
   postfx.visible = enable_postfx
 
@@ -186,6 +202,8 @@ func _process(delta):
     if _level_change_timer > 0.0:
       _level_change_timer -= delta
     else:
+      if target != null:
+        target.performer.stop()
       for child in level_root.get_children():
         child.queue_free()
       _load_level(levels[_level_index])

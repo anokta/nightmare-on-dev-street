@@ -42,7 +42,7 @@ scale = Vector2(1.5, 1.5)
 shape = SubResource("CircleShape2D_u1syl")
 
 [node name="BarelyInstrument" type="BarelyInstrument" parent="." unique_id=92399416]
-gain = 0.9
+gain = 0.95
 attack = 0.0
 decay = 1.0
 sustain = 0.8

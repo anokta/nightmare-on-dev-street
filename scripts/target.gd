@@ -65,11 +65,13 @@ func _physics_process(delta):
 
   scale = lerp(scale, _initial_scale, 4 * delta)
 
-  instrument.reverb_send = max(1.0 - pow(_player_proximity, 1.5), 0.25) + 0.5
-  instrument.filter_cutoff = min(pow(_player_proximity + 0.2, 1.5), 0.75) + 0.1
-  instrument.stereo_pan = (
-    sign(from_player.x) * clampf((abs(from_player.x) - min_dist) / (max_dist - min_dist), 0.0, 1.0)
-  )
+  if !main.is_game_over():
+    instrument.reverb_send = max(1.0 - pow(_player_proximity, 1.5), 0.25) + 0.5
+    instrument.filter_cutoff = min(pow(_player_proximity + 0.2, 1.5), 0.75) + 0.1
+    instrument.stereo_pan = (
+      sign(from_player.x)
+      * clampf((abs(from_player.x) - min_dist) / (max_dist - min_dist), 0.0, 1.0)
+    )
 
   var min_boss_dist = min_boss_distance * main.tile_size
   var max_boss_dist = max_boss_distance * main.tile_size
@@ -115,14 +117,28 @@ func _on_task_begin():
     instrument.set_note_on(i / 4.0)
   light.energy = light_intensity
   _light_target_energy = light_intensity
-  instrument.pitch_shift = randf_range(-0.0025, 0.0025)
+  instrument.pitch_shift = (
+    randf_range(-0.0025, 0.0025)
+    * (0.1 if main.is_game_over() else (100.0 if !main.is_running() else 1.0))
+  )
   choose_travel_direction()
+
+  if main.is_game_over():
+    _boss_proximity = randf_range(0.89, 0.898)
+    instrument.gain = randf_range(0.2, 0.7)
+    instrument.crush_depth = randf_range(0.0, 0.25)
+    instrument.crush_rate = randf_range(0.6, 0.8)
+    instrument.distortion_mix = 0.25
+    instrument.reverb_send = 1.3
+    instrument.stereo_pan = randf_range(-1.0, 1.0)
+    instrument.filter_cutoff = 0.5 if main.dead_anim.visible else 0.25
+  elif !main.is_running():
+    instrument.gain = randf_range(0.75, 0.9)
+    _boss_proximity = randf_range(0.7, 0.8)
+    instrument.stereo_pan = randf_range(-0.5, 0.5)
 
   scale = (1 + prox / 16.0) * scale_mult * _initial_scale
   performer.loop_length = loop_length * max(1.0 - _boss_proximity, 0.05)
-
-  instrument.crush_depth = randf_range(0.8, 0.95) if main.is_game_over() else 0.0
-  instrument.crush_rate = randf_range(0.0, 0.5) if main.is_game_over() else 0.0
 
   if main.boss != null:
     main.boss.ping()

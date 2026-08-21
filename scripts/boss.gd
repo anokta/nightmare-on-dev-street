@@ -64,6 +64,8 @@ func _input(event):
       instrument.set_note_on(0.0)
       # light.energy = light_intensity
       main.change_level(1.0, true)
+      if main.target != null:
+        main.target.performer.stop()
 
 
 func _physics_process(delta):

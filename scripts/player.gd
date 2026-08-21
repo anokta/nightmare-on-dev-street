@@ -36,7 +36,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
   var direction: Vector2 = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 
-  if !main.is_game_over():
+  if main.is_running():
     if direction != Vector2.ZERO:
       velocity = direction * speed
     else:  # snap to grid
@@ -65,5 +65,5 @@ func _physics_process(delta: float) -> void:
   )
   light.energy = lerpf(light.energy, _light_target_energy, light_energy_speed * delta)
 
-  if !main.is_game_over():
+  if main.is_running():
     move_and_slide()

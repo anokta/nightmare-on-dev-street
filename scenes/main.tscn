@@ -71,7 +71,7 @@ boss_scene = ExtResource("3_tefeu")
 wall_scene = ExtResource("3_tipki")
 tile_size = 48
 empty_alpha = 0.04
-levels = Array[String](["level3", "level2", "level1"])
+levels = Array[String](["level1", "level4", "level2", "level3", "level5", "level6", "level7"])
 
 [node name="Background" type="CanvasModulate" parent="." unique_id=714309114]
 position = Vector2(6.1035156e-05, 6.1035156e-05)
