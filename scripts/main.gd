@@ -7,6 +7,7 @@ enum GState { RUNNING, LEVEL_CHANGE, OVER }
 @export var shader: ColorRect
 @export var dead_anim: AnimatedSprite2D
 
+@export var dead_sfx: AudioStreamPlayer2D
 @export var done_sfx: AudioStreamPlayer2D
 
 @export var level_root: Node2D
@@ -29,6 +30,8 @@ enum GState { RUNNING, LEVEL_CHANGE, OVER }
 
 @export var levels: Array[String] = []
 
+var quitting = false
+
 var player: CharacterBody2D
 var target: CharacterBody2D
 var boss: CharacterBody2D
@@ -49,20 +52,27 @@ var _height: int = 0
 var _state: GState = GState.RUNNING
 
 
+func is_last_level():
+  return _level_index == levels.size() - 1
+
+
 func change_level(restart = false):
   if boss != null and !restart:
     boss.performer.stop()
+    boss.visible = false
   level_root.process_mode = Node.PROCESS_MODE_DISABLED
 
   dead_anim.visible = false
 
-  if target != null:
+  if target != null and !restart:
+    target.performer.stop()
     target.performer.position = 0.0
+    target.performer.start()
 
   player.hummer.set_note_off(0.0)
 
   _state = GState.LEVEL_CHANGE
-  should_start_level = false
+  should_start_level = (restart and boss == null)
 
   if !restart:
     _level_index = (_level_index + 1) % levels.size()
@@ -73,7 +83,8 @@ func change_level(restart = false):
 func game_over():
   _state = GState.OVER
 
-  boss.visible = false
+  if boss != null:
+    boss.visible = false
   if target != null:
     target.visible = false
 
@@ -98,6 +109,19 @@ func set_glitch_intensity(intensity):
 
 func set_glitch_color_split(color_split):
   _shader.set_shader_parameter("color_split", color_split)
+
+
+func increment_glitch():
+  _shader.set_shader_parameter(
+    "glitch_speed", min(30.0, _shader.get_shader_parameter("glitch_speed") * 1.5)
+  )
+  _shader.set_shader_parameter(
+    "block_count", min(50.0, _shader.get_shader_parameter("block_count") * 1.5)
+  )
+  boss.instrument.pitch_shift = boss.instrument.pitch_shift - randf_range(0.0, 0.5)
+  if boss.instrument.pitch_shift < -3.5:
+    dead_sfx.play()
+    quitting = true
 
 
 func is_wall(tile) -> bool:
@@ -166,13 +190,26 @@ func _ready() -> void:
 func _input(event):
   if event is InputEventKey and event.pressed:
     if event.keycode == KEY_ESCAPE:
-      get_tree().quit()
-      return
+      if is_game_over():
+        quitting = true
+        get_tree().quit()
+      elif is_running():
+        game_over()
+    if event.keycode == KEY_SPACE and is_game_over() and boss == null and !quitting:
+      target.performer.stop()
+      change_level(true)
 
 
 func _process(delta):
   if player == null:
     return
+
+  if quitting:
+    if dead_sfx.playing:
+      dead_sfx.pitch_scale += randf_range(0.0, 0.5) * delta
+    else:
+      get_tree().quit()
+      return
 
   player.light.visible = enable_light
   if target != null:

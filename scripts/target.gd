@@ -22,7 +22,7 @@ extends CharacterBody2D
 @export var min_player_distance: float = 2.0
 @export var max_player_distance: float = 40.0
 
-@export var eaten_scale = 0.24
+@export var eaten_scale = 0.3
 
 @export var scale_mult = 1.2
 
@@ -136,7 +136,7 @@ func _on_task_begin():
     instrument.filter_cutoff = 0.5 if main.dead_anim.visible else 0.25
   elif !main.is_running():
     instrument.gain = randf_range(0.75, 0.9)
-    _boss_proximity = randf_range(0.75, 0.82)
+    _boss_proximity = randf_range(0.77, 0.82)
     instrument.stereo_pan = randf_range(-0.5, 0.5)
 
     var eat_scale_mult = randf_range(0.15, 0.3)

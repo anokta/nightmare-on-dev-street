@@ -37,7 +37,7 @@ var _beat_interval = min_beat_interval
 var _repeat_beats = min_beat_repeat
 
 var _target_pos = Vector2.ZERO
-
+var _attacking = false
 
 func ping():
   _target_pos = main.player.position
@@ -60,8 +60,13 @@ func _input(event):
     return
 
   if event is InputEventKey and event.pressed and not event.echo:
-    if event.keycode == KEY_SPACE:
+    if event.keycode == KEY_SPACE and !main.quitting:
       instrument.set_note_on(0.0)
+      if main.is_last_level():
+        main.dead_anim.visible = !main.dead_anim.visible
+        main.increment_glitch()
+        instrument.set_note_off(0.0)
+        return
       # light.energy = light_intensity
       main.change_level(true)
       if main.target != null:
@@ -91,10 +96,13 @@ func _physics_process(delta):
 
   sprite.rotate(rotation_speed * (2.0 * randf() - 1.0) * delta)
 
-  if main.is_game_over():
+  if main.is_game_over() or main.target == null:
     _target_pos = main.player.position
-  elif main.target != null:
+  else:
     _target_pos = (lerp(_target_pos, main.target.position, boss_target_lerp_speed * delta))
+
+  if _attacking and player_proximity >= 1.0 and main.player.velocity != Vector2.ZERO:
+    main.game_over()
 
   move_and_slide()
 
@@ -159,12 +167,16 @@ func _on_task_begin():
   if main.is_game_over():
     # if !main.dead_anim.visible or randf() < 0.1:
     main.dead_anim.visible = !main.dead_anim.visible
-  elif player_proximity >= 1.0:
-    main.game_over()
+  else:
+    _attacking = true
 
 
 func _on_task_end():
   instrument.set_note_off(0.0)
   _light_target_energy = 0.0
+
+  _attacking = false
+  if main.is_restart and !main.is_running() and !main.is_game_over():
+    main.should_start_level = true
   if main.should_start_level:
     performer.stop()

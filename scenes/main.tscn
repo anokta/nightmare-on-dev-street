@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://c6l38nomq803y" path="res://scenes/boss.tscn" id="3_tefeu"]
 [ext_resource type="PackedScene" uid="uid://or2jcywl6a7q" path="res://scenes/wall.tscn" id="3_tipki"]
 [ext_resource type="Shader" uid="uid://bphaoeftuf0m8" path="res://shaders/glitch.gdshader" id="6_ya4ey"]
+[ext_resource type="AudioStream" uid="uid://u0but6fswffm" path="res://art/dead.wav" id="7_trceg"]
 [ext_resource type="Texture2D" uid="uid://b070gtvdivmdd" path="res://art/you-should-not-be-here/Paint Layer 1.PNG" id="7_ya4ey"]
 [ext_resource type="Texture2D" uid="uid://drud2i04px7cj" path="res://art/you-should-not-be-here/Paint Layer 2.PNG" id="8_eb6dy"]
 [ext_resource type="Texture2D" uid="uid://m4qpjvkmnrxk" path="res://art/you-should-not-be-here/Paint Layer 3.PNG" id="9_trceg"]
@@ -59,12 +60,13 @@ shader_parameter/glitch_intensity = 0.0010000000475
 shader_parameter/block_count = 20.0000009025
 shader_parameter/color_split = 0.0070000003325
 
-[node name="Main" type="Node2D" unique_id=1319513797 node_paths=PackedStringArray("background", "postfx", "shader", "dead_anim", "done_sfx", "level_root")]
+[node name="Main" type="Node2D" unique_id=1319513797 node_paths=PackedStringArray("background", "postfx", "shader", "dead_anim", "dead_sfx", "done_sfx", "level_root")]
 script = ExtResource("1_tefeu")
 background = NodePath("Background")
 postfx = NodePath("PostFx")
 shader = NodePath("PostFx/Glitcher")
 dead_anim = NodePath("PostFx/DeadAnim")
+dead_sfx = NodePath("Dead")
 done_sfx = NodePath("Done")
 level_root = NodePath("Level")
 player_scene = ExtResource("2_tbgi4")
@@ -73,15 +75,19 @@ boss_scene = ExtResource("3_tefeu")
 wall_scene = ExtResource("3_tipki")
 tile_size = 48
 empty_alpha = 0.08
-levels = Array[String](["level4", "level1", "level2", "level3", "level5", "level6", "level7"])
+levels = Array[String](["level1", "level2", "level4", "level3", "level5", "level6", "level7", "level8", "level9", "level10"])
 
 [node name="Background" type="CanvasModulate" parent="." unique_id=714309114]
 position = Vector2(6.1035156e-05, 6.1035156e-05)
 scale = Vector2(0.9999999, 0.9999999)
-color = Color(0.023529412, 0.023529412, 0.023529412, 1)
+color = Color(0.015686275, 0.015686275, 0.015686275, 1)
 
 [node name="Done" type="AudioStreamPlayer2D" parent="." unique_id=2101448200]
 stream = ExtResource("12_eb6dy")
+
+[node name="Dead" type="AudioStreamPlayer2D" parent="." unique_id=979984007]
+stream = ExtResource("7_trceg")
+pitch_scale = 0.25
 
 [node name="Level" type="Node2D" parent="." unique_id=1806540029]
 

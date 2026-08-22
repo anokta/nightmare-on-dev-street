@@ -48,7 +48,6 @@ filter_resonance = 0.52
 delay_send = 0.1
 reverb_send = 0.5
 sidechain_send = 1.0
-voice_count = 4
 
 [node name="BarelyPerformer" type="BarelyPerformer" parent="." unique_id=1886823423]
 looping = true
