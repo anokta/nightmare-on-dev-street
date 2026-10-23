@@ -49,7 +49,12 @@ static func add_button(box: Control, text: String, on_pressed: Callable) -> Butt
   button.text = text
   button.flat = true
   button.pressed.connect(on_pressed)
-  # mouse hover moves keyboard focus too, so only one item is ever lit
-  button.mouse_entered.connect(button.grab_focus)
+  # moving the mouse over an item moves keyboard focus too, so only one item is ever lit
+  # (not mouse_entered: that also fires when a menu opens under a resting cursor)
+  button.gui_input.connect(
+    func(event):
+      if event is InputEventMouseMotion and not button.has_focus():
+        button.grab_focus()
+  )
   box.add_child(button)
   return button
