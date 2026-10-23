@@ -105,11 +105,11 @@ func is_running():
 
 
 func set_glitch_intensity(intensity):
-  _shader.set_shader_parameter("glitch_intensity", intensity)
+  _shader.set_shader_parameter("glitch_intensity", intensity * SaveData.effects_scale())
 
 
 func set_glitch_color_split(color_split):
-  _shader.set_shader_parameter("color_split", color_split)
+  _shader.set_shader_parameter("color_split", color_split * SaveData.effects_scale())
 
 
 func increment_glitch():
@@ -228,17 +228,20 @@ func _process(delta):
   if boss != null:
     boss.light.visible = enable_light
 
+  var effects = SaveData.effects_scale()
   _shader.set_shader_parameter(
     "color_split",
     lerp(
-      _shader.get_shader_parameter("color_split"), _initial_color_split, delta * glitch_interp_speed
+      _shader.get_shader_parameter("color_split"),
+      _initial_color_split * effects,
+      delta * glitch_interp_speed
     )
   )
   _shader.set_shader_parameter(
     "glitch_intensity",
     lerp(
       _shader.get_shader_parameter("glitch_intensity"),
-      _initial_glitch_intensity,
+      _initial_glitch_intensity * effects,
       delta * glitch_interp_speed
     )
   )
