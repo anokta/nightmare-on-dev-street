@@ -188,16 +188,15 @@ func _ready() -> void:
 
 
 func _input(event):
-  if event is InputEventKey and event.pressed:
-    if event.keycode == KEY_ESCAPE:
-      if is_game_over():
-        quitting = true
-        get_tree().quit()
-      elif is_running():
-        game_over()
-    if event.keycode == KEY_SPACE and is_game_over() and boss == null and !quitting:
-      target.performer.stop()
-      change_level(true)
+  if event.is_action_pressed("quit"):
+    if is_game_over():
+      quitting = true
+      get_tree().quit()
+    elif is_running():
+      game_over()
+  if event.is_action_pressed("restart") and is_game_over() and boss == null and !quitting:
+    target.performer.stop()
+    change_level(true)
 
 
 func _process(delta):
