@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="You Should Not Be Here"
-run/main_scene="uid://cb6njbi3esh8w"
+run/main_scene="res://scenes/boot.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
