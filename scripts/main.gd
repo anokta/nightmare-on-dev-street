@@ -3,6 +3,7 @@ extends Node2D
 enum GState { RUNNING, LEVEL_CHANGE, OVER }
 
 const PauseMenu = preload("res://scripts/pause_menu.gd")
+const Caption = preload("res://scripts/caption.gd")
 
 @export var background: CanvasModulate
 @export var postfx: CanvasLayer
@@ -53,6 +54,8 @@ var _height: int = 0
 
 var _state: GState = GState.RUNNING
 
+var _caption: Caption
+
 
 func is_last_level():
   return _level_index == levels.size() - 1
@@ -65,6 +68,7 @@ func change_level(restart = false):
   level_root.process_mode = Node.PROCESS_MODE_DISABLED
 
   dead_anim.visible = false
+  _caption.hide_now()
 
   if target != null and !restart:
     target.performer.stop()
@@ -96,6 +100,8 @@ func game_over():
 
   dead_anim.play_backwards()
   dead_anim.visible = true
+
+  _caption.show_text("", "space to try again", 0.0)
 
 
 func is_game_over():
@@ -189,6 +195,9 @@ func _ready() -> void:
   _initial_glitch_intensity = _shader.get_shader_parameter("glitch_intensity")
   _initial_color_split = _shader.get_shader_parameter("color_split")
 
+  _caption = Caption.new()
+  add_child(_caption)
+
   _level_index = clampi(SaveData.get_level(), 0, levels.size() - 1)
   _load_level(levels[_level_index])
 
@@ -254,12 +263,15 @@ func _process(delta):
       target.performer.stop()
     for child in level_root.get_children():
       child.queue_free()
+    var arrived = !is_restart
     should_start_level = false
     is_restart = false
-    _load_level(levels[_level_index])
+    _load_level(levels[_level_index], arrived)
 
 
-func _load_level(path: String) -> void:
+# Lines starting with ";" at the top of a level file are its caption:
+# the first is a story line, the second an optional hint.
+func _load_level(path: String, show_caption: bool = true) -> void:
   var file = FileAccess.open("res://levels/" + path + ".txt", FileAccess.READ)
   if not file:
     return
@@ -267,9 +279,13 @@ func _load_level(path: String) -> void:
   _width = 0
   _height = 0
 
+  var caption: PackedStringArray = []
   var y = 0
   while not file.eof_reached():
     var line = file.get_line().strip_edges()
+    if line.begins_with(";"):
+      caption.append(line.substr(1).strip_edges())
+      continue
     if line.is_empty():
       y += 1
       continue
@@ -304,6 +320,12 @@ func _load_level(path: String) -> void:
 
   level_root.process_mode = PROCESS_MODE_INHERIT
   _state = GState.RUNNING
+
+  if show_caption:
+    caption.resize(2)
+    _caption.show_text(caption[0], caption[1])
+  else:
+    _caption.hide_now()
 
 
 func _spawn(prefab_scene: PackedScene, x: int, y: int) -> Node2D:
