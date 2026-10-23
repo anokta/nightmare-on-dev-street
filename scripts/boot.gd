@@ -1,6 +1,7 @@
 extends Control
 
 @export_file("*.tscn") var next_scene: String = "res://scenes/main.tscn"
+@export_file("*.tscn") var credits_scene: String = "res://scenes/credits.tscn"
 
 @export var fade_time: float = 1.0
 @export var min_show_time: float = 1.5
@@ -24,7 +25,7 @@ func _ready() -> void:
     28
   )
   _add_line(box, "Best played with headphones.", 28)
-  var hint = _add_line(box, "press any key", 22)
+  var hint = _add_line(box, "press any key  ·  C for credits", 22)
   hint.modulate.a = 0.4
 
   modulate.a = 0.0
@@ -47,6 +48,12 @@ func _process(delta):
 
 
 func _input(event):
+  if _leaving:
+    return
+  if event is InputEventKey and event.physical_keycode == KEY_C and event.pressed:
+    _leaving = true
+    get_tree().change_scene_to_file(credits_scene)
+    return
   if _elapsed < min_show_time:
     return
   if (
