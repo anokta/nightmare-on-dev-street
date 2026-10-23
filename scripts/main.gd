@@ -2,6 +2,8 @@ extends Node2D
 
 enum GState { RUNNING, LEVEL_CHANGE, OVER }
 
+const PauseMenu = preload("res://scripts/pause_menu.gd")
+
 @export var background: CanvasModulate
 @export var postfx: CanvasLayer
 @export var shader: ColorRect
@@ -192,12 +194,13 @@ func _ready() -> void:
 
 
 func _input(event):
-  if event.is_action_pressed("quit"):
-    if is_game_over():
-      quitting = true
-      get_tree().quit()
-    elif is_running():
-      game_over()
+  if event.is_action_pressed("quit") and !quitting:
+    get_viewport().set_input_as_handled()
+    var menu = PauseMenu.new()
+    menu.can_give_up = is_running()
+    menu.give_up.connect(game_over)
+    add_child(menu)
+    return
   if event.is_action_pressed("restart") and is_game_over() and boss == null and !quitting:
     target.performer.stop()
     change_level(true)

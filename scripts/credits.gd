@@ -1,6 +1,6 @@
 extends Control
 
-@export_file("*.tscn") var back_scene: String = "res://scenes/boot.tscn"
+@export_file("*.tscn") var back_scene: String = "res://scenes/title.tscn"
 
 @export var scroll_speed: float = 600.0
 
