@@ -23,11 +23,13 @@ func _ready() -> void:
   add_child(root)
   var box = UI.make_menu(root, 0.85)
   UI.add_title(box, "paused", 44)
-  _resume = UI.add_button(box, "Resume", close)
+  _resume = UI.add_button(box, "resume", close)
   if can_give_up:
-    UI.add_button(box, "Give up", _give_up)
-  _settings_button = UI.add_button(box, "Settings", _open_settings.bind(root))
-  UI.add_button(box, "Quit to title", _quit_to_title)
+    UI.add_button(box, "give up", _give_up)
+  _settings_button = UI.add_button(box, "settings", _open_settings.bind(root))
+  UI.add_button(box, "quit to title", _quit_to_title)
+
+  UI.add_glitch(self, 0.5, layer + 1)
 
   get_tree().paused = true
   _resume.grab_focus()

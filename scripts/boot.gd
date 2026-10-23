@@ -11,21 +11,22 @@ var _leaving = false
 
 
 func _ready() -> void:
+  theme = UI.make_theme()
   var box = VBoxContainer.new()
   box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
   box.alignment = BoxContainer.ALIGNMENT_CENTER
-  box.add_theme_constant_override("separation", 32)
+  box.add_theme_constant_override("separation", 28)
   add_child(box)
 
-  _add_line(box, "PHOTOSENSITIVITY WARNING", 44)
+  _add_line(box, "PHOTOSENSITIVITY WARNING", 52).add_theme_color_override("font_color", UI.RED)
   _add_line(
     box,
-    "This game contains flashing lights and glitch effects\nthat may affect players with photosensitive epilepsy.",
+    "this game contains flashing lights and glitch effects\nthat may affect players with photosensitive epilepsy.",
     28
   )
-  _add_line(box, "Best played with headphones.", 28)
+  _add_line(box, "best played with headphones.", 28)
   var hint = _add_line(box, "press any key", 22)
-  hint.modulate.a = 0.4
+  hint.modulate.a = 0.35
 
   modulate.a = 0.0
   create_tween().tween_property(self, "modulate:a", 1.0, fade_time)

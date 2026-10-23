@@ -12,7 +12,7 @@ var _effects: Button
 func _ready() -> void:
   set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
   var box = UI.make_menu(self, 0.92)
-  UI.add_title(box, "Settings", 44)
+  UI.add_title(box, "settings", 44)
 
   _volume = UI.add_button(box, "", _change.bind("volume", 1))
   _fullscreen = UI.add_button(box, "", _change.bind("fullscreen", 1))
@@ -20,7 +20,7 @@ func _ready() -> void:
   _volume.set_meta("setting", "volume")
   _fullscreen.set_meta("setting", "fullscreen")
   _effects.set_meta("setting", "effects")
-  UI.add_button(box, "Back", close)
+  UI.add_button(box, "back", close)
 
   _refresh()
   _volume.grab_focus()
@@ -47,9 +47,9 @@ func _change(setting: String, step: int, wrap: bool = true) -> void:
 
 
 func _refresh() -> void:
-  _volume.text = "Volume   %d%%" % roundi(SaveData.get_volume() * 100)
-  _fullscreen.text = "Fullscreen   " + ("On" if SaveData.is_fullscreen() else "Off")
-  _effects.text = "Screen effects   " + SaveData.EFFECTS_NAMES[SaveData.get_effects()]
+  _volume.text = "volume   %d%%" % roundi(SaveData.get_volume() * 100)
+  _fullscreen.text = "fullscreen   " + ("on" if SaveData.is_fullscreen() else "off")
+  _effects.text = "screen effects   " + SaveData.EFFECTS_NAMES[SaveData.get_effects()]
 
 
 func _input(event):

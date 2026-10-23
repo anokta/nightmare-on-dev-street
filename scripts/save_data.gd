@@ -3,7 +3,7 @@ extends Node
 const PATH = "user://save.cfg"
 
 const EFFECTS_LEVELS = [1.0, 0.5, 0.0]
-const EFFECTS_NAMES = ["Full", "Reduced", "Off"]
+const EFFECTS_NAMES = ["full", "reduced", "off"]
 
 var _config = ConfigFile.new()
 

@@ -195,8 +195,11 @@ func _ready() -> void:
   _initial_glitch_intensity = _shader.get_shader_parameter("glitch_intensity")
   _initial_color_split = _shader.get_shader_parameter("color_split")
 
+  # same canvas layer as PostFx but before it in the tree, so the glitch runs over the text
   _caption = Caption.new()
+  _caption.layer = postfx.layer
   add_child(_caption)
+  move_child(_caption, postfx.get_index())
 
   _level_index = clampi(SaveData.get_level(), 0, levels.size() - 1)
   _load_level(levels[_level_index])
@@ -323,7 +326,8 @@ func _load_level(path: String, show_caption: bool = true) -> void:
 
   if show_caption:
     caption.resize(2)
-    _caption.show_text(caption[0], caption[1])
+    var progress = float(_level_index) / maxf(levels.size() - 1, 1)
+    _caption.show_text(caption[0], caption[1], _caption.hold_time, UI.story_color(progress))
   else:
     _caption.hide_now()
 
