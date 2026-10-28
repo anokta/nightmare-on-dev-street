@@ -56,6 +56,20 @@ var _state: GState = GState.RUNNING
 
 var _caption: Caption
 
+# Shown on the death screen once the player keeps dying on the same level,
+# one per further death. Kept to "it" so they don't give the story away.
+const TIPS = [
+  "it can only hurt you while you move. stand still and you are safe.",
+  "move between its beats. freeze when the sound turns harsh.",
+  "it strikes a few times, then rests. the rest is your moment.",
+  "walls stop you. they don't stop it.",
+  "it always goes where the little one goes. come from the other side.",
+  "listen. your left ear and your right ear tell you where it is.",
+]
+const DEATHS_BEFORE_TIPS = 2
+
+var _deaths_here = 0
+
 
 func is_last_level():
   return _level_index == levels.size() - 1
@@ -83,6 +97,7 @@ func change_level(restart = false):
   if !restart:
     _level_index = (_level_index + 1) % levels.size()
     SaveData.set_level(_level_index)
+    _deaths_here = 0
 
   is_restart = restart
 
@@ -101,7 +116,14 @@ func game_over():
   dead_anim.play_backwards()
   dead_anim.visible = true
 
-  _caption.show_text("", "space to try again", 0.0)
+  _deaths_here += 1
+  var tip = ""
+  # no tips on the last level: dying there is part of the ending
+  if boss != null and !is_last_level() and _deaths_here >= DEATHS_BEFORE_TIPS:
+    tip = TIPS[(_deaths_here - DEATHS_BEFORE_TIPS) % TIPS.size()]
+  # above PostFx while dead, so the painted death screen doesn't cover the text
+  _caption.layer = postfx.layer + 1
+  _caption.show_text(tip, "space to try again", 0.0)
 
 
 func is_game_over():
@@ -324,6 +346,7 @@ func _load_level(path: String, show_caption: bool = true) -> void:
   level_root.process_mode = PROCESS_MODE_INHERIT
   _state = GState.RUNNING
 
+  _caption.layer = postfx.layer
   if show_caption:
     caption.resize(2)
     var progress = float(_level_index) / maxf(levels.size() - 1, 1)

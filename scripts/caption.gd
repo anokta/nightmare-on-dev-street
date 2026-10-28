@@ -36,7 +36,7 @@ func show_text(
     label.visible_ratio = 0.0
     _tween.tween_property(label, "visible_ratio", 1.0, story.length() / write_speed)
   if !hint.is_empty():
-    var label = _add_label(hint, 24, Color(1.0, 1.0, 1.0, 0.45))
+    var label = _add_label(hint, 24, Color(1.0, 1.0, 1.0, 0.65))
     label.modulate.a = 0.0
     _tween.tween_property(label, "modulate:a", 1.0, fade_time * 0.5)
   if hold > 0.0:
@@ -50,6 +50,9 @@ func _add_label(text: String, size: int, color: Color) -> Label:
   label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
   label.add_theme_font_size_override("font_size", size)
   label.add_theme_color_override("font_color", color)
+  # keeps the text readable over the walls' static and the painted death screen
+  label.add_theme_constant_override("outline_size", 14)
+  label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.9))
   _box.add_child(label)
   return label
 
