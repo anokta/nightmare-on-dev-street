@@ -2,6 +2,9 @@ extends Node2D
 
 enum GState { RUNNING, LEVEL_CHANGE, OVER }
 
+const PauseMenu = preload("res://scripts/pause_menu.gd")
+const Caption = preload("res://scripts/caption.gd")
+
 @export var background: CanvasModulate
 @export var postfx: CanvasLayer
 @export var shader: ColorRect
@@ -51,6 +54,22 @@ var _height: int = 0
 
 var _state: GState = GState.RUNNING
 
+var _caption: Caption
+
+# Shown on the death screen once the player keeps dying on the same level,
+# one per further death. Kept to "it" so they don't give the story away.
+const TIPS = [
+  "it can only hurt you while you move. stand still and you are safe.",
+  "move between its beats. freeze when the sound turns harsh.",
+  "it strikes a few times, then rests. the rest is your moment.",
+  "walls stop you. they don't stop it.",
+  "it always goes where the little one goes. come from the other side.",
+  "listen. your left ear and your right ear tell you where it is.",
+]
+const DEATHS_BEFORE_TIPS = 2
+
+var _deaths_here = 0
+
 
 func is_last_level():
   return _level_index == levels.size() - 1
@@ -63,6 +82,7 @@ func change_level(restart = false):
   level_root.process_mode = Node.PROCESS_MODE_DISABLED
 
   dead_anim.visible = false
+  _caption.hide_now()
 
   if target != null and !restart:
     target.performer.stop()
@@ -77,6 +97,7 @@ func change_level(restart = false):
   if !restart:
     _level_index = (_level_index + 1) % levels.size()
     SaveData.set_level(_level_index)
+    _deaths_here = 0
 
   is_restart = restart
 
@@ -95,6 +116,15 @@ func game_over():
   dead_anim.play_backwards()
   dead_anim.visible = true
 
+  _deaths_here += 1
+  var tip = ""
+  # no tips on the last level: dying there is part of the ending
+  if boss != null and !is_last_level() and _deaths_here >= DEATHS_BEFORE_TIPS:
+    tip = TIPS[(_deaths_here - DEATHS_BEFORE_TIPS) % TIPS.size()]
+  # above PostFx while dead, so the painted death screen doesn't cover the text
+  _caption.layer = postfx.layer + 1
+  _caption.show_text(tip, "space to try again", 0.0)
+
 
 func is_game_over():
   return _state == GState.OVER
@@ -105,11 +135,11 @@ func is_running():
 
 
 func set_glitch_intensity(intensity):
-  _shader.set_shader_parameter("glitch_intensity", intensity)
+  _shader.set_shader_parameter("glitch_intensity", intensity * SaveData.effects_scale())
 
 
 func set_glitch_color_split(color_split):
-  _shader.set_shader_parameter("color_split", color_split)
+  _shader.set_shader_parameter("color_split", color_split * SaveData.effects_scale())
 
 
 func increment_glitch():
@@ -187,17 +217,24 @@ func _ready() -> void:
   _initial_glitch_intensity = _shader.get_shader_parameter("glitch_intensity")
   _initial_color_split = _shader.get_shader_parameter("color_split")
 
+  # same canvas layer as PostFx but before it in the tree, so the glitch runs over the text
+  _caption = Caption.new()
+  _caption.layer = postfx.layer
+  add_child(_caption)
+  move_child(_caption, postfx.get_index())
+
   _level_index = clampi(SaveData.get_level(), 0, levels.size() - 1)
   _load_level(levels[_level_index])
 
 
 func _input(event):
-  if event.is_action_pressed("quit"):
-    if is_game_over():
-      quitting = true
-      get_tree().quit()
-    elif is_running():
-      game_over()
+  if event.is_action_pressed("quit") and !quitting:
+    get_viewport().set_input_as_handled()
+    var menu = PauseMenu.new()
+    menu.can_give_up = is_running()
+    menu.give_up.connect(game_over)
+    add_child(menu)
+    return
   if event.is_action_pressed("restart") and is_game_over() and boss == null and !quitting:
     target.performer.stop()
     change_level(true)
@@ -228,17 +265,20 @@ func _process(delta):
   if boss != null:
     boss.light.visible = enable_light
 
+  var effects = SaveData.effects_scale()
   _shader.set_shader_parameter(
     "color_split",
     lerp(
-      _shader.get_shader_parameter("color_split"), _initial_color_split, delta * glitch_interp_speed
+      _shader.get_shader_parameter("color_split"),
+      _initial_color_split * effects,
+      delta * glitch_interp_speed
     )
   )
   _shader.set_shader_parameter(
     "glitch_intensity",
     lerp(
       _shader.get_shader_parameter("glitch_intensity"),
-      _initial_glitch_intensity,
+      _initial_glitch_intensity * effects,
       delta * glitch_interp_speed
     )
   )
@@ -248,12 +288,15 @@ func _process(delta):
       target.performer.stop()
     for child in level_root.get_children():
       child.queue_free()
+    var arrived = !is_restart
     should_start_level = false
     is_restart = false
-    _load_level(levels[_level_index])
+    _load_level(levels[_level_index], arrived)
 
 
-func _load_level(path: String) -> void:
+# Lines starting with ";" at the top of a level file are its caption:
+# the first is a story line, the second an optional hint.
+func _load_level(path: String, show_caption: bool = true) -> void:
   var file = FileAccess.open("res://levels/" + path + ".txt", FileAccess.READ)
   if not file:
     return
@@ -261,9 +304,13 @@ func _load_level(path: String) -> void:
   _width = 0
   _height = 0
 
+  var caption: PackedStringArray = []
   var y = 0
   while not file.eof_reached():
     var line = file.get_line().strip_edges()
+    if line.begins_with(";"):
+      caption.append(line.substr(1).strip_edges())
+      continue
     if line.is_empty():
       y += 1
       continue
@@ -298,6 +345,14 @@ func _load_level(path: String) -> void:
 
   level_root.process_mode = PROCESS_MODE_INHERIT
   _state = GState.RUNNING
+
+  _caption.layer = postfx.layer
+  if show_caption:
+    caption.resize(2)
+    var progress = float(_level_index) / maxf(levels.size() - 1, 1)
+    _caption.show_text(caption[0], caption[1], _caption.hold_time, UI.story_color(progress))
+  else:
+    _caption.hide_now()
 
 
 func _spawn(prefab_scene: PackedScene, x: int, y: int) -> Node2D:
