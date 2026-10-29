@@ -76,6 +76,7 @@ func change_level(restart = false):
 
   if !restart:
     _level_index = (_level_index + 1) % levels.size()
+    SaveData.set_level(_level_index)
 
   is_restart = restart
 
@@ -122,6 +123,8 @@ func increment_glitch():
   if boss.instrument.pitch_shift < -3.5:
     dead_sfx.play()
     quitting = true
+    # the game is finished, so the next launch starts from the beginning
+    SaveData.set_level(0)
 
 
 func is_wall(tile) -> bool:
@@ -184,20 +187,20 @@ func _ready() -> void:
   _initial_glitch_intensity = _shader.get_shader_parameter("glitch_intensity")
   _initial_color_split = _shader.get_shader_parameter("color_split")
 
+  _level_index = clampi(SaveData.get_level(), 0, levels.size() - 1)
   _load_level(levels[_level_index])
 
 
 func _input(event):
-  if event is InputEventKey and event.pressed:
-    if event.keycode == KEY_ESCAPE:
-      if is_game_over():
-        quitting = true
-        get_tree().quit()
-      elif is_running():
-        game_over()
-    if event.keycode == KEY_SPACE and is_game_over() and boss == null and !quitting:
-      target.performer.stop()
-      change_level(true)
+  if event.is_action_pressed("quit"):
+    if is_game_over():
+      quitting = true
+      get_tree().quit()
+    elif is_running():
+      game_over()
+  if event.is_action_pressed("restart") and is_game_over() and boss == null and !quitting:
+    target.performer.stop()
+    change_level(true)
 
 
 func _process(delta):

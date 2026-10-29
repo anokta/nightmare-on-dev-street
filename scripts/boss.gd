@@ -59,18 +59,17 @@ func _input(event):
   if !main.is_game_over():
     return
 
-  if event is InputEventKey and event.pressed and not event.echo:
-    if event.keycode == KEY_SPACE and !main.quitting:
-      instrument.set_note_on(0.0)
-      if main.is_last_level():
-        main.dead_anim.visible = !main.dead_anim.visible
-        main.increment_glitch()
-        instrument.set_note_off(0.0)
-        return
-      # light.energy = light_intensity
-      main.change_level(true)
-      if main.target != null:
-        main.target.performer.stop()
+  if event.is_action_pressed("restart") and !main.quitting:
+    instrument.set_note_on(0.0)
+    if main.is_last_level():
+      main.dead_anim.visible = !main.dead_anim.visible
+      main.increment_glitch()
+      instrument.set_note_off(0.0)
+      return
+    # light.energy = light_intensity
+    main.change_level(true)
+    if main.target != null:
+      main.target.performer.stop()
 
 
 func _physics_process(delta):
